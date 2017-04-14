@@ -17,6 +17,14 @@ public class HikariDataSourceProvider extends DataSourceProvider {
     @Override
     public DataSource createDataSource(DataSourceConfig conf) {
         HikariConfig hc = new HikariConfig();
+        if (logger.isTraceEnabled()) {
+            logger.trace("creating HikariCP data source ...");
+            logger.trace("url: %s", conf.url);
+            logger.trace("driver: %s", conf.driver);
+            logger.trace("max conn: %s", conf.maxConnections);
+            logger.trace("min conn: %s", conf.minConnections);
+            logger.trace("autoCommit: %s", conf.autoCommit);
+        }
         hc.setJdbcUrl(conf.url);
         hc.setUsername(conf.username);
         hc.setPassword(conf.password);

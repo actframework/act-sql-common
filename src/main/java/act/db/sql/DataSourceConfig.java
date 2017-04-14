@@ -2,6 +2,7 @@ package act.db.sql;
 
 import act.data.annotation.Data;
 import act.util.SimpleBean;
+import org.osgl.exception.ConfigurationException;
 import org.osgl.util.C;
 import org.osgl.util.E;
 import org.osgl.util.Keyword;
@@ -20,6 +21,7 @@ import static act.Act.LOGGER;
 public class DataSourceConfig implements SimpleBean {
 
     public static final int DEF_MIN_CONN = 2;
+    public static final int DEF_MAX_CONN = 100;
 
     public String id;
 
@@ -33,7 +35,7 @@ public class DataSourceConfig implements SimpleBean {
 
     public int minConnections = DEF_MIN_CONN;
 
-    public int maxConnections = 100;
+    public int maxConnections = DEF_MAX_CONN;
 
     public int isolationLevel = Connection.TRANSACTION_READ_COMMITTED;
 
@@ -87,7 +89,7 @@ public class DataSourceConfig implements SimpleBean {
 
         minConnections = getInt(conf, "minConnections", minConnections);
         maxConnections = getInt(conf, "maxConnections", maxConnections);
-        pstmtCacheSize = getInt(conf, "pstmtCacheSize", pstmtCacheSize);
+        pstmtCacheSize = getInt(conf, "0", pstmtCacheSize);
         cstmtCacheSize = getInt(conf, "cstmtCacheSize", cstmtCacheSize);
 
         waitTimeoutMillis = getInt(conf, "waitTimeout", waitTimeoutMillis);
@@ -134,13 +136,24 @@ public class DataSourceConfig implements SimpleBean {
         }
 
         if (null == url) {
-            LOGGER.warn("No database URL configuration specified. Will use the default h2 inmemory test database");
-            url = "jdbc:h2:./test";
+            try {
+                Class.forName("org.h2.Driver");
+                LOGGER.warn("No database URL configuration specified. Will use the default h2 inmemory test database");
+                url = "jdbc:h2:./test";
+            } catch (ClassNotFoundException e) {
+                throw new ConfigurationException("No database URL configuration specified to db service: " + id);
+            }
         }
 
         if (null == driver) {
             if (url.contains("mysql")) {
-                driver = "com.mysql.cj.jdbc.Driver";
+                try {
+                    driver = "com.mysql.cj.jdbc.Driver";
+                    Class.forName(driver);
+                } catch (ClassNotFoundException e) {
+                    // we are using mysql jdbc driver 5.x
+                    driver = "com.mysql.jdbc.Driver";
+                }
             } else if (url.contains("postgresql")) {
                 driver = "org.postgresql.Driver";
             } else if (url.contains("jdbc:h2:")) {

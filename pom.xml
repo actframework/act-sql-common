@@ -18,6 +18,11 @@
 ********************************************
 *            version history
 ********************************************
+
+1.0.1
+- #2 The default jdbc driver doesn't work with mysql jdbc driver 5.x
+- #1 When it uses h2 with db on filesystem, it shall ignore the `ddl.create` if that file exists
+
 1.0.0 - baseline version
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -37,7 +42,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <git.url>git@github.com:actframework/act-sql-common.git</git.url>
-    <act.version>1.1.0</act.version>
+    <act.version>1.1.1</act.version>
     <mockito-core.version>2.7.0</mockito-core.version>
     <ebean.version>8.8.1</ebean.version>
     <ebean-agent.version>8.1.1</ebean-agent.version>
