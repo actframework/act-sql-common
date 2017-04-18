@@ -34,7 +34,6 @@ public abstract class SqlDbService extends DbService {
                 me.config = new SqlDbServiceConfig(dbId, config);
                 me.configured();
                 me.initDataSource();
-                me.dataSourceInitialized();
                 if (!supportDdl() && me.config.createDdl()) {
                     // the plugin doesn't support ddl generating and executing
                     // we have to run our logic to get it done
@@ -90,18 +89,29 @@ public abstract class SqlDbService extends DbService {
 
     private void initDataSource() {
         DataSourceProvider dsProvider = config.dataSourceProvider();
-        ds = null != dsProvider ? dsProvider.createDataSource(config.dataSourceConfig) : createDataSource();
+        if (null != dsProvider) {
+            ds = dsProvider.createDataSource(config.dataSourceConfig);
+            dataSourceProvided(ds);
+        } else {
+            ds = createDataSource();
+        }
     }
 
     /**
-     * Called after datasource is initialized. Subclass can use this method to do relevant logic that
-     * require a datasource to be initialized
+     * Called after datasource is initialized with a configured dataSourceProvider.
+     * Subclass can use this method to do relevant logic that require a
+     * datasource to be initialized.
+     *
+     * Note this method is mutually exclusive with {@link #createDataSource()}
      */
-    protected void dataSourceInitialized() {}
+    protected void dataSourceProvided(DataSource dataSource) {}
 
     /**
      * If no data source provider is specified then it relies on the sub
-     * class to provide the new datasource instance
+     * class to provide the new datasource instance.
+     *
+     * Note this method is mutually exclusive with
+     * {@link #dataSourceProvided(DataSource)}
      *
      * @return an new datasource instance
      */

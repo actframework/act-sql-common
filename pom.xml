@@ -18,6 +18,8 @@
 ********************************************
 *            version history
 ********************************************
+1.0.2
+- #3 Allow specific implementation to initialize in different logic when dataSourceProvider available or not
 
 1.0.1
 - #2 The default jdbc driver doesn't work with mysql jdbc driver 5.x
