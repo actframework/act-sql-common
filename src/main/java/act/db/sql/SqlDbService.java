@@ -34,7 +34,7 @@ public abstract class SqlDbService extends DbService {
                 me.config = new SqlDbServiceConfig(dbId, config);
                 me.configured();
                 me.initDataSource();
-                if (!supportDdl() && me.config.createDdl()) {
+                if (!me.config.isSharedDatasource() && !supportDdl() && me.config.createDdl()) {
                     // the plugin doesn't support ddl generating and executing
                     // we have to run our logic to get it done
                     app.jobManager().on(AppEventId.START, new Runnable() {
@@ -72,6 +72,10 @@ public abstract class SqlDbService extends DbService {
      */
     public DataSource dataSource() {
         return ds;
+    }
+
+    public DataSourceConfig dataSourceConfig() {
+        return config.dataSourceConfig;
     }
 
     @Override

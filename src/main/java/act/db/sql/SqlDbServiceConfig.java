@@ -1,8 +1,11 @@
 package act.db.sql;
 
 import act.Act;
+import act.db.sql.datasource.SharedDataSourceProvider;
 import act.db.sql.util.NamingConvention;
 import org.osgl.util.C;
+import org.osgl.util.E;
+import org.osgl.util.S;
 
 import java.util.Map;
 
@@ -21,11 +24,22 @@ public final class SqlDbServiceConfig {
 
     public NamingConvention fieldNamingConvention = NamingConvention.Default.MATCHING;
 
+    public SharedDataSourceProvider sharedDataSourceProvider;
+
     public SqlDbServiceConfig(String dbId, Map<String, String> conf) {
         rawConf = processAliases(conf, aliases);
-        dataSourceConfig = new DataSourceConfig(dbId, rawConf);
-        ddlGeneratorConfig = new DdlGeneratorConfig(rawConf);
+        sharedDataSourceProvider = checkSharedDatasource(conf);
+        if (null == sharedDataSourceProvider) {
+            dataSourceConfig = new DataSourceConfig(dbId, rawConf);
+            ddlGeneratorConfig = new DdlGeneratorConfig(rawConf);
+        } else {
+            dataSourceConfig = sharedDataSourceProvider.dataSourceConfig();
+        }
         loadNamingConvention(rawConf);
+    }
+
+    public boolean isSharedDatasource() {
+        return sharedDataSourceProvider != null;
     }
 
     public boolean createDdl() {
@@ -33,17 +47,20 @@ public final class SqlDbServiceConfig {
     }
 
     public DataSourceProvider dataSourceProvider() {
-        String dsProvider = rawConf.get("datasource.provider");
-
-        if (null != dsProvider) {
-            if (dsProvider.toLowerCase().contains("hikari")) {
+        if (null != sharedDataSourceProvider) {
+            return sharedDataSourceProvider;
+        }
+        String dsProvider = rawConf.get("datasource");
+        if (S.notBlank(dsProvider)) {
+            String s = dsProvider.toLowerCase();
+            if (s.contains("hikari")) {
                 dsProvider = HIKARI_PROVIDER;
-            } else if (dsProvider.toLowerCase().contains("druid")) {
+            } else if (s.contains("druid")) {
                 dsProvider = DRUID_PROVDER;
             }
         }
         DataSourceProvider provider;
-        if (null != dsProvider) {
+        if (S.notBlank(dsProvider)) {
             provider = Act.getInstance(dsProvider);
         } else {
             // try HikariCP first
@@ -61,6 +78,19 @@ public final class SqlDbServiceConfig {
             }
         }
         return provider;
+    }
+
+    private SharedDataSourceProvider checkSharedDatasource(Map<String, String> conf) {
+        String dsProvider = rawConf.get("datasource");
+        if (S.notBlank(dsProvider)) {
+            String s = dsProvider.toLowerCase();
+            if (s.contains("shared:")) {
+                String dbId = S.afterFirst(s, ":");
+                E.invalidConfigurationIf(S.blank(dbId), "Invalid datasource provider: %s", dsProvider);
+                return new SharedDataSourceProvider(dbId, Act.app().dbServiceManager());
+            }
+        }
+        return null;
     }
 
     private void loadNamingConvention(Map<String, String> conf) {
@@ -105,7 +135,8 @@ public final class SqlDbServiceConfig {
     private static final Map<String, String> aliases = C.map("jdbcDriver", "driver",
             "jdbcUrl", "url",
             "databaseDriver", "driver",
-            "databaseUrl", "url"
+            "databaseUrl", "url",
+            "datasource.provider", "datasource"
     );
 
     private static final String DRUID_PROVDER = "act.db.sql.datasource.DruidDataSourceProvider";
