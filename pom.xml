@@ -34,7 +34,7 @@
   <groupId>org.actframework</groupId>
   <artifactId>act-sql-common</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.3-SNAPSHOT</version>
+  <version>1.0.3</version>
 
   <name>ACT SQL Common</name>
   <description>The SQL Common DB Service for Actframework</description>
