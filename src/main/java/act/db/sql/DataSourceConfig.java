@@ -21,7 +21,7 @@ import static act.Act.LOGGER;
 public class DataSourceConfig implements SimpleBean {
 
     public static final int DEF_MIN_CONN = 2;
-    public static final int DEF_MAX_CONN = 100;
+    public static final int DEF_MAX_CONN = 10;
 
     public String id;
 

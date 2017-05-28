@@ -2,18 +2,24 @@ package act.db.sql.datasource;
 
 import act.db.sql.DataSourceConfig;
 import act.db.sql.DataSourceProvider;
+import act.db.sql.monitor.DataSourceStatus;
 import com.alibaba.druid.pool.DruidDataSource;
+import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.E;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Provide Druid datasource
  */
 public class DruidDataSourceProvider extends DataSourceProvider {
+
+    private Set<DruidDataSource> created = new HashSet<>();
 
     @Override
     public DataSource createDataSource(DataSourceConfig conf) {
@@ -74,6 +80,7 @@ public class DruidDataSourceProvider extends DataSourceProvider {
             source.setPoolPreparedStatements(Boolean.parseBoolean(s));
         }
 
+        created.add(source);
         return source;
     }
 
@@ -85,5 +92,27 @@ public class DruidDataSourceProvider extends DataSourceProvider {
                 "validationQuery", "heartbeatSql",
                 "maxPoolPreparedStatementPerConnectionSize", "pstmtCacheSize"
         );
+    }
+
+    @Override
+    public DataSourceStatus getStatus(DataSource ds) {
+        DruidDataSource dds = $.cast(ds);
+        return DataSourceStatus.create()
+                .activeConnections(dds.getActiveCount())
+                .idleConnections(dds.getPoolingCount())
+                .waitingThreads(dds.getWaitThreadCount());
+    }
+
+    @Override
+    protected void releaseResources() {
+        for (DruidDataSource ds : created) {
+            release(ds);
+        }
+        created.clear();
+        super.releaseResources();
+    }
+
+    private void release(DruidDataSource ds) {
+        ds.close();
     }
 }

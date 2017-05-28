@@ -5,9 +5,15 @@ import act.app.App;
 import act.app.event.AppEventId;
 import act.conf.AppConfigKey;
 import act.db.DbService;
+import act.db.DbServiceInitialized;
+import act.db.sql.datasource.SharedDataSourceProvider;
 import act.db.sql.ddl.DDL;
+import act.db.sql.monitor.DataSourceStatus;
 import act.db.sql.util.EbeanAgentLoader;
 import act.event.AppEventListenerBase;
+import org.osgl.$;
+import org.osgl.Osgl;
+import org.osgl.util.E;
 import org.osgl.util.S;
 
 import javax.sql.DataSource;
@@ -22,27 +28,39 @@ import static act.app.event.AppEventId.PRE_LOAD_CLASSES;
  */
 public abstract class SqlDbService extends DbService {
 
+    public static final DataSourceStatus DUMB_STATUS = new DataSourceStatus();
+
     protected SqlDbServiceConfig config;
-    private DataSource ds;
+    protected DataSource ds;
+    private boolean initialized;
 
     public SqlDbService(final String dbId, final App app, final Map<String, String> config) {
         super(dbId, app);
         final SqlDbService me = this;
-        app.jobManager().on(AppEventId.SINGLETON_PROVISIONED, new Runnable() {
+        app.eventBus().bindAsync(AppEventId.SINGLETON_PROVISIONED, new AppEventListenerBase() {
             @Override
+            public void on(EventObject event) throws Exception {
+                run();
+            }
             public void run() {
-                me.config = new SqlDbServiceConfig(dbId, config);
-                me.configured();
-                me.initDataSource();
-                if (!me.config.isSharedDatasource() && !supportDdl() && me.config.createDdl()) {
-                    // the plugin doesn't support ddl generating and executing
-                    // we have to run our logic to get it done
-                    app.jobManager().on(AppEventId.START, new Runnable() {
-                        @Override
-                        public void run() {
-                            me.executeDdl();
-                        }
-                    });
+                try {
+                    me.config = new SqlDbServiceConfig(dbId, config);
+                    me.configured();
+                    me.initDataSource();
+                    if (!me.config.isSharedDatasource() && !supportDdl() && me.config.createDdl()) {
+                        // the plugin doesn't support ddl generating and executing
+                        // we have to run our logic to get it done
+                        app.jobManager().on(AppEventId.START, new Runnable() {
+                            @Override
+                            public void run() {
+                                me.executeDdl();
+                            }
+                        });
+                    }
+                    me.initialized = true;
+                    app.eventBus().emit(new DbServiceInitialized(me));
+                } catch (RuntimeException e) {
+                    throw E.invalidConfiguration(e, "Error init SQL db service");
                 }
             }
         });
@@ -66,6 +84,16 @@ public abstract class SqlDbService extends DbService {
         }
     }
 
+    @Override
+    public boolean initAsynchronously() {
+        return true;
+    }
+
+    @Override
+    public boolean initialized() {
+        return initialized;
+    }
+
     /**
      * Returns a {@link DataSource} instance loaded by this DbService
      * @return the datasource of this service
@@ -74,12 +102,25 @@ public abstract class SqlDbService extends DbService {
         return ds;
     }
 
+    public DataSourceProvider dataSourceProvider() {
+        return config.dataSourceProvider();
+    }
+
     public DataSourceConfig dataSourceConfig() {
         return config.dataSourceConfig;
     }
 
+    public DataSourceStatus dataSourceStatus() {
+        DataSourceProvider dsp = dataSourceProvider();
+        return null == dsp ? DUMB_STATUS : dsp.getStatus(ds);
+    }
+
     @Override
     protected void releaseResources() {
+        DataSourceProvider dsp = dataSourceProvider();
+        if (null != dsp) {
+            dsp.destroy();
+        }
         ds = null;
         config = null;
     }
@@ -92,10 +133,28 @@ public abstract class SqlDbService extends DbService {
     protected void configured() {}
 
     private void initDataSource() {
-        DataSourceProvider dsProvider = config.dataSourceProvider();
+        final DataSourceProvider dsProvider = config.dataSourceProvider();
         if (null != dsProvider) {
-            ds = dsProvider.createDataSource(config.dataSourceConfig);
-            dataSourceProvided(ds);
+            if (dsProvider.initialized()) {
+                DataSourceConfig dsConfig = this.config.dataSourceConfig;
+                if (dsProvider instanceof SharedDataSourceProvider) {
+                    dsConfig = ((SharedDataSourceProvider) dsProvider).dataSourceConfig();
+                }
+                ds = dsProvider.createDataSource(dsConfig);
+                dataSourceProvided(ds, dsConfig);
+            } else {
+                dsProvider.setInitializationCallback(new $.Visitor<DataSourceProvider>() {
+                    @Override
+                    public void visit(DataSourceProvider dataSourceProvider) throws Osgl.Break {
+                        DataSourceConfig dsConfig = SqlDbService.this.config.dataSourceConfig;
+                        if (dsProvider instanceof SharedDataSourceProvider) {
+                            dsConfig = ((SharedDataSourceProvider) dsProvider).dataSourceConfig();
+                        }
+                        ds = dataSourceProvider.createDataSource(dsConfig);
+                        dataSourceProvided(ds, dsConfig);
+                    }
+                });
+            }
         } else {
             ds = createDataSource();
         }
@@ -107,15 +166,18 @@ public abstract class SqlDbService extends DbService {
      * datasource to be initialized.
      *
      * Note this method is mutually exclusive with {@link #createDataSource()}
+     *
+     * @param dataSource the datasource
+     * @param dataSourceConfig the datasource config used to load the data source
      */
-    protected void dataSourceProvided(DataSource dataSource) {}
+    protected void dataSourceProvided(DataSource dataSource, DataSourceConfig dataSourceConfig) {}
 
     /**
      * If no data source provider is specified then it relies on the sub
      * class to provide the new datasource instance.
      *
      * Note this method is mutually exclusive with
-     * {@link #dataSourceProvided(DataSource)}
+     * {@link #dataSourceProvided(DataSource, DataSourceConfig)}
      *
      * @return an new datasource instance
      */

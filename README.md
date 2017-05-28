@@ -63,7 +63,7 @@ Default value: `2`
 
 Specify the maximum connections can be created by data source
 
-Default value: `100`
+Default value: `10`
 
 #### `isolationLevel`
 

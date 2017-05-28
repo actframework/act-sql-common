@@ -18,6 +18,9 @@
 ********************************************
 *            version history
 ********************************************
+1.1.0
+* catch up to Act core 1.4.0
+
 1.0.2
 - #3 Allow specific implementation to initialize in different logic when dataSourceProvider available or not
 
@@ -34,7 +37,7 @@
   <groupId>org.actframework</groupId>
   <artifactId>act-sql-common</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.4-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
 
   <name>ACT SQL Common</name>
   <description>The SQL Common DB Service for Actframework</description>
@@ -44,14 +47,14 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <git.url>git@github.com:actframework/act-sql-common.git</git.url>
-    <act.version>1.1.1</act.version>
+    <act.version>1.4.0-SNAPSHOT</act.version>
     <mockito-core.version>2.7.0</mockito-core.version>
     <ebean.version>8.8.1</ebean.version>
     <ebean-agent.version>8.1.1</ebean-agent.version>
     <ebean-agent-loader.version>2.1.2</ebean-agent-loader.version>
     <persistence-api.version>1.0</persistence-api.version>
-    <HikariCP.version>2.6.1</HikariCP.version>
-    <druid.version>1.0.29</druid.version>
+    <HikariCP.version>2.6.2</HikariCP.version>
+    <druid.version>1.0.31</druid.version>
   </properties>
 
   <parent>

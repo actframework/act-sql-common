@@ -26,6 +26,8 @@ public final class SqlDbServiceConfig {
 
     public SharedDataSourceProvider sharedDataSourceProvider;
 
+    private DataSourceProvider loadedDataSourceProvider;
+
     public SqlDbServiceConfig(String dbId, Map<String, String> conf) {
         rawConf = processAliases(conf, aliases);
         sharedDataSourceProvider = checkSharedDatasource(conf);
@@ -49,6 +51,9 @@ public final class SqlDbServiceConfig {
     public DataSourceProvider dataSourceProvider() {
         if (null != sharedDataSourceProvider) {
             return sharedDataSourceProvider;
+        }
+        if (null != loadedDataSourceProvider) {
+            return loadedDataSourceProvider;
         }
         String dsProvider = rawConf.get("datasource");
         if (S.notBlank(dsProvider)) {
@@ -77,6 +82,7 @@ public final class SqlDbServiceConfig {
                 }
             }
         }
+        loadedDataSourceProvider = provider;
         return provider;
     }
 

@@ -2,17 +2,24 @@ package act.db.sql.datasource;
 
 import act.db.sql.DataSourceConfig;
 import act.db.sql.DataSourceProvider;
+import act.db.sql.monitor.DataSourceStatus;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.HikariPoolMXBean;
+import org.osgl.$;
 import org.osgl.util.C;
 
 import javax.sql.DataSource;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Provide HikariCP data source
  */
 public class HikariDataSourceProvider extends DataSourceProvider {
+
+    private Set<HikariDataSource> created = new HashSet<>();
 
     @Override
     public DataSource createDataSource(DataSourceConfig conf) {
@@ -62,7 +69,9 @@ public class HikariDataSourceProvider extends DataSourceProvider {
             hc.setPoolName(s);
         }
 
-        return new HikariDataSource(hc);
+        HikariDataSource ds = new HikariDataSource(hc);
+        created.add(ds);
+        return ds;
     }
 
     @Override
@@ -72,5 +81,29 @@ public class HikariDataSourceProvider extends DataSourceProvider {
                 "minimumIdle", "minConnections",
                 "connectionTimeout", "waitTimeout"
         );
+    }
+
+    @Override
+    public DataSourceStatus getStatus(DataSource ds) {
+        HikariDataSource hds = $.cast(ds);
+        HikariPoolMXBean mbean = hds.getHikariPoolMXBean();
+        return DataSourceStatus.create()
+                .activeConnections(mbean.getActiveConnections())
+                .idleConnections(mbean.getIdleConnections())
+                .totalConnections(mbean.getTotalConnections())
+                .waitingThreads(mbean.getThreadsAwaitingConnection());
+    }
+
+    @Override
+    protected void releaseResources() {
+        for (HikariDataSource ds : created) {
+            release(ds);
+        }
+        created.clear();
+        super.releaseResources();
+    }
+
+    private void release(HikariDataSource ds) {
+        ds.close();
     }
 }
