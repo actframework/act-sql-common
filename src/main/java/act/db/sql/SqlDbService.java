@@ -117,7 +117,7 @@ public abstract class SqlDbService extends DbService {
 
     @Override
     protected void releaseResources() {
-        DataSourceProvider dsp = dataSourceProvider();
+        DataSourceProvider dsp = null == config ? null : dataSourceProvider();
         if (null != dsp) {
             dsp.destroy();
         }
