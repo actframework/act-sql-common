@@ -47,7 +47,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <git.url>git@github.com:actframework/act-sql-common.git</git.url>
-    <act.version>1.4.0-SNAPSHOT</act.version>
+    <act.version>1.4.0</act.version>
     <mockito-core.version>2.7.0</mockito-core.version>
     <ebean.version>8.8.1</ebean.version>
     <ebean-agent.version>8.1.1</ebean-agent.version>
