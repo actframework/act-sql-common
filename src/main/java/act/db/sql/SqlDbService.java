@@ -13,10 +13,13 @@ import act.db.sql.util.EbeanAgentLoader;
 import act.event.AppEventListenerBase;
 import org.osgl.$;
 import org.osgl.Osgl;
+import org.osgl.logging.LogManager;
+import org.osgl.logging.Logger;
 import org.osgl.util.E;
 import org.osgl.util.S;
 
 import javax.sql.DataSource;
+import java.sql.DriverManager;
 import java.util.EventObject;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +31,16 @@ import static act.app.event.AppEventId.PRE_LOAD_CLASSES;
  */
 public abstract class SqlDbService extends DbService {
 
+    private static final Logger _logger = LogManager.get(SqlDbService.class);
+
     public static final DataSourceStatus DUMB_STATUS = new DataSourceStatus();
+
+    static {
+        // we need load DriverManager proactively by calling any one of
+        // it's static method, e.g. `println`.
+        // This is to avoid issues like https://github.com/actframework/actframework/issues/249
+        DriverManager.println("loading DriverManager proactively");
+    }
 
     protected SqlDbServiceConfig config;
     protected DataSource ds;
@@ -40,25 +52,47 @@ public abstract class SqlDbService extends DbService {
         app.eventBus().bindAsync(AppEventId.SINGLETON_PROVISIONED, new AppEventListenerBase() {
             @Override
             public void on(EventObject event) throws Exception {
+                if (_logger.isTraceEnabled()) {
+                    _logger.trace("trigger on SINGLETON_PROVISIONED event: %s", dbId);
+                }
                 run();
             }
-            public void run() {
+            private void run() {
                 try {
+                    final boolean traceEnabled = _logger.isTraceEnabled();
+                    if (traceEnabled) {
+                        _logger.trace("initializing %s", dbId);
+                    }
                     me.config = new SqlDbServiceConfig(dbId, config);
                     me.configured();
+                    if (traceEnabled) {
+                        _logger.trace("configured: %s", dbId);
+                    }
                     me.initDataSource();
+                    if (traceEnabled) {
+                        _logger.trace("data source initialized: %s", dbId);
+                    }
                     if (!me.config.isSharedDatasource() && !supportDdl() && me.config.createDdl()) {
                         // the plugin doesn't support ddl generating and executing
                         // we have to run our logic to get it done
                         app.jobManager().on(AppEventId.START, new Runnable() {
                             @Override
                             public void run() {
+                                if (traceEnabled) {
+                                    _logger.trace("executing DDL: %s", dbId);
+                                }
                                 me.executeDdl();
                             }
                         });
                     }
                     me.initialized = true;
+                    if (traceEnabled) {
+                        _logger.trace("emitting db-svc-init event: %s", dbId);
+                    }
                     app.eventBus().emit(new DbServiceInitialized(me));
+                    if (traceEnabled) {
+                        _logger.trace("db-svc-init event triggered: %s", dbId);
+                    }
                 } catch (RuntimeException e) {
                     throw E.invalidConfiguration(e, "Error init SQL db service");
                 }
@@ -82,6 +116,16 @@ public abstract class SqlDbService extends DbService {
                 }
             });
         }
+    }
+
+    @Override
+    public String toString() {
+        S.Buffer buffer = S.buffer(getClass().getSimpleName());
+        String id = id();
+        if (S.notBlank(id)) {
+            buffer.append("[").append(id).append("]");
+        }
+        return buffer.toString();
     }
 
     @Override
@@ -133,6 +177,9 @@ public abstract class SqlDbService extends DbService {
     protected void configured() {}
 
     private void initDataSource() {
+        if (_logger.isTraceEnabled()) {
+            _logger.trace("init data source: %s", id());
+        }
         final DataSourceProvider dsProvider = config.dataSourceProvider();
         if (null != dsProvider) {
             if (dsProvider.initialized()) {
