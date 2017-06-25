@@ -13,8 +13,6 @@ import act.db.sql.util.EbeanAgentLoader;
 import act.event.AppEventListenerBase;
 import org.osgl.$;
 import org.osgl.Osgl;
-import org.osgl.logging.LogManager;
-import org.osgl.logging.Logger;
 import org.osgl.util.E;
 import org.osgl.util.S;
 
@@ -30,8 +28,6 @@ import static act.app.event.AppEventId.PRE_LOAD_CLASSES;
  * `SqlDbService` is the base class for DbService solution that dealing with SQL database
  */
 public abstract class SqlDbService extends DbService {
-
-    private static final Logger _logger = LogManager.get(SqlDbService.class);
 
     public static final DataSourceStatus DUMB_STATUS = new DataSourceStatus();
 
