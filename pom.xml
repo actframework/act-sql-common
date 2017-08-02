@@ -18,8 +18,8 @@
 ********************************************
 *            version history
 ********************************************
-1.2.0 - compatible with act-1.3.5+ and act-1.4.2+
-*
+1.2.0
+* update to act-1.5.0
 
 1.1.0
 * catch up to Act core 1.4.0
@@ -40,7 +40,7 @@
   <groupId>org.actframework</groupId>
   <artifactId>act-sql-common</artifactId>
   <packaging>jar</packaging>
-  <version>1.1.2-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
 
   <name>ACT SQL Common</name>
   <description>The SQL Common DB Service for Actframework</description>
@@ -50,7 +50,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <git.url>git@github.com:actframework/act-sql-common.git</git.url>
-    <act.version>1.4.1</act.version>
+    <act.version>1.5.0-SNAPSHOT</act.version>
     <mockito-core.version>2.7.0</mockito-core.version>
     <ebean.version>8.8.1</ebean.version>
     <ebean-agent.version>8.1.1</ebean-agent.version>
