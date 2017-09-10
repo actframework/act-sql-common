@@ -21,7 +21,7 @@
   <groupId>org.actframework</groupId>
   <artifactId>act-sql-common</artifactId>
   <packaging>jar</packaging>
-  <version>1.1.2</version>
+  <version>1.1.2-SNAPSHOT</version>
 
   <name>ACT AAA Plugin</name>
   <description>Provides Authentication/Authorization/Accounting service for Actframework based on osgl-aaa</description>
@@ -44,7 +44,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
-    <scm.url>git@github.com:actframework/act-aaa-plugin.git</scm.url>
+    <scm.url>git@github.com:actframework/act-sql-common.git</scm.url>
 
     <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
