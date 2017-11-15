@@ -1,5 +1,10 @@
 # act-sql-common CHANGE LOG
 
+1.1.3
+* update act to 1.5.1
+* update druid to 1.1.5
+* update HikariCP to 2.7.3
+
 1.1.2
 * catch up to act-1.4.11
 * improve maven build process
