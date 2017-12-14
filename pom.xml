@@ -21,9 +21,9 @@
   <groupId>org.actframework</groupId>
   <artifactId>act-sql-common</artifactId>
   <packaging>jar</packaging>
-  <version>1.1.4-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
 
-  <name>ACT AAA Plugin</name>
+  <name>ACT SQL Common Module</name>
   <description>Provides Authentication/Authorization/Accounting service for Actframework based on osgl-aaa</description>
   <url>http://actframework.org/plugin/morphia</url>
   <inceptionYear>2015</inceptionYear>
@@ -65,10 +65,10 @@
     <ebean-agent.version>8.1.1</ebean-agent.version>
     <ebean-agent-loader.version>2.1.2</ebean-agent-loader.version>
     <persistence-api.version>1.0</persistence-api.version>
-    <HikariCP.version>2.7.3</HikariCP.version>
-    <druid.version>1.1.5</druid.version>
+    <HikariCP.version>2.7.4</HikariCP.version>
+    <druid.version>1.1.6</druid.version>
 
-    <act.version>1.5.1</act.version>
+    <act.version>1.6.0-SNAPSHOT</act.version>
     <act-test.version>0.9.0-BETA-1</act-test.version>
 
   </properties>

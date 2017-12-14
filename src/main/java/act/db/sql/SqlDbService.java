@@ -123,7 +123,7 @@ public abstract class SqlDbService extends DbService {
                 @Override
                 public void on(EventObject event) {
                     Object o = config.get("agentPackage");
-                    final String agentPackage = null == o ? S.string(app().config().get(AppConfigKey.SCAN_PACKAGE)) : S.string(o).trim();
+                    final String agentPackage = null == o ? S.string(app().config().get(AppConfigKey.SCAN_PACKAGE, null)) : S.string(o).trim();
                     String s = S.builder("debug=").append(Act.isDev() ? "1" : "0")
                             .append(";packages=")
                             //.append("act.db.ebean.*,")

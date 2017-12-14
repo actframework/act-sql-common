@@ -1,5 +1,8 @@
 # act-sql-common CHANGE LOG
 
+1.2.0
+* update act to 1.6.0
+
 1.1.3
 * update act to 1.5.1
 * update druid to 1.1.5
