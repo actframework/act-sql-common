@@ -59,8 +59,8 @@
     <markdown-doclet.version>1.4</markdown-doclet.version>
     <plexus-compiler-javac-errorprone.version>2.8.2</plexus-compiler-javac-errorprone.version>
 
-    <osgl-bootstrap.version>1.0.0-BETA-7</osgl-bootstrap.version>
-    <osgl-ut.version>1.0.0-BETA-4</osgl-ut.version>
+    <osgl-bootstrap.version>1.0.0</osgl-bootstrap.version>
+    <osgl-ut.version>1.0.1</osgl-ut.version>
     <ebean.version>8.8.1</ebean.version>
     <ebean-agent.version>8.1.1</ebean-agent.version>
     <ebean-agent-loader.version>2.1.2</ebean-agent-loader.version>
