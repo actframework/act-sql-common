@@ -35,9 +35,9 @@ import act.db.sql.util.EbeanAgentLoader;
 import act.event.AppEventListenerBase;
 import org.osgl.$;
 import org.osgl.Osgl;
-import org.osgl.bootstrap.Version;
 import org.osgl.util.E;
 import org.osgl.util.S;
+import osgl.version.Version;
 
 import java.sql.DriverManager;
 import java.util.EventObject;
