@@ -21,7 +21,7 @@
   <groupId>org.actframework</groupId>
   <artifactId>act-sql-common</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.0</version>
+  <version>1.2.1-SNAPSHOT</version>
 
   <name>ACT SQL Common Module</name>
   <description>Provides Authentication/Authorization/Accounting service for Actframework based on osgl-aaa</description>
