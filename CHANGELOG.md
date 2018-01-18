@@ -2,6 +2,8 @@
 
 1.3.0
 * Update to act-1.7.x
+* Update to JPA 2.2
+* Add JTA into dependency
 
 1.2.0
 * update act to 1.6.0

@@ -41,6 +41,7 @@
   <properties>
     <scm.url>git@github.com:actframework/act-sql-common.git</scm.url>
 
+    <jboss-transaction-api.version>2.0.0.Alpha1</jboss-transaction-api.version>
     <ebean.version>8.8.1</ebean.version>
     <ebean-agent.version>8.1.1</ebean-agent.version>
     <ebean-agent-loader.version>2.1.2</ebean-agent-loader.version>
@@ -60,9 +61,21 @@
   <dependencies>
 
     <dependency>
+      <groupId>org.jboss.spec.javax.transaction</groupId>
+      <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+      <version>${jboss-transaction-api.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.avaje.ebean</groupId>
       <artifactId>ebean</artifactId>
       <version>${ebean.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.persistence</groupId>
+          <artifactId>persistence-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
