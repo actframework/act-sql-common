@@ -28,11 +28,11 @@ import org.osgl.$;
 import org.osgl.util.C;
 import org.osgl.util.E;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.sql.DataSource;
 
 /**
  * Provide Druid datasource
@@ -106,7 +106,7 @@ public class DruidDataSourceProvider extends DataSourceProvider {
 
     @Override
     public Map<String, String> confKeyMapping() {
-        return C.map("minIdle", "minConnections",
+        return C.Map("minIdle", "minConnections",
                 "maxActive", "maxConnections",
                 "maxWait", "waitTimeout",
                 "validationQuery", "heartbeatSql",

@@ -20,6 +20,8 @@ package act.db.sql;
  * #L%
  */
 
+import static act.Act.LOGGER;
+
 import act.data.annotation.Data;
 import act.util.SimpleBean;
 import org.osgl.exception.ConfigurationException;
@@ -29,8 +31,6 @@ import org.osgl.util.Keyword;
 
 import java.sql.Connection;
 import java.util.Map;
-
-import static act.Act.LOGGER;
 
 /**
  * The simple class encapsulate configurations for an SQL DataSource.
@@ -192,7 +192,7 @@ public class DataSourceConfig implements SimpleBean {
     }
 
 
-    private static final Map<String, Integer> isolationLevels = C.map(
+    private static final Map<String, Integer> isolationLevels = C.Map(
             "NONE", Connection.TRANSACTION_NONE,
             "READ_UNCOMMITTED", Connection.TRANSACTION_READ_UNCOMMITTED,
             "READ_COMMITTED", Connection.TRANSACTION_READ_COMMITTED,

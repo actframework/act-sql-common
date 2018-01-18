@@ -21,7 +21,7 @@ package act.db.sql.datasource;
  */
 
 import act.app.DbServiceManager;
-import act.app.event.AppEventId;
+import act.app.event.SysEventId;
 import act.db.DbService;
 import act.db.sql.DataSourceConfig;
 import act.db.sql.DataSourceProvider;
@@ -53,7 +53,7 @@ public class SharedDataSourceProvider extends DataSourceProvider {
         E.invalidConfigurationIf(null == db, "Cannot find db service: %s", dbId);
         E.invalidConfigurationIf(!(db instanceof SqlDbService), "DB service is not a SQL DB service: %s", dbId);
         final SqlDbService sql = $.cast(db);
-        dbm.app().jobManager().on(AppEventId.DB_SVC_LOADED, new Runnable() {
+        dbm.app().jobManager().on(SysEventId.DB_SVC_LOADED, new Runnable() {
             @Override
             public void run() {
                 ds = sql.dataSource();

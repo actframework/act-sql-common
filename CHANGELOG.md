@@ -1,5 +1,8 @@
 # act-sql-common CHANGE LOG
 
+1.3.0
+* Update to act-1.7.x
+
 1.2.0
 * update act to 1.6.0
 

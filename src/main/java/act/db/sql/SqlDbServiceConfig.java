@@ -158,7 +158,7 @@ public final class SqlDbServiceConfig {
         return newConf;
     }
 
-    private static final Map<String, String> aliases = C.map("jdbcDriver", "driver",
+    private static final Map<String, String> aliases = C.Map("jdbcDriver", "driver",
             "jdbcUrl", "url",
             "databaseDriver", "driver",
             "databaseUrl", "url",

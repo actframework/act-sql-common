@@ -20,15 +20,15 @@ package act.db.sql;
  * #L%
  */
 
+import static act.controller.Controller.Util.badRequestIf;
+import static act.controller.Controller.Util.notFoundIfNull;
+
 import act.app.DbServiceManager;
 import act.cli.Command;
-import act.cli.JsonView;
 import act.cli.Required;
 import act.db.DbService;
 import act.db.sql.monitor.DataSourceStatus;
-
-import static act.controller.Controller.Util.badRequestIf;
-import static act.controller.Controller.Util.notFoundIfNull;
+import act.util.JsonView;
 
 /**
  * Provides CLI admin command
