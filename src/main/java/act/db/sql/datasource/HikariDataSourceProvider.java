@@ -29,10 +29,10 @@ import com.zaxxer.hikari.HikariPoolMXBean;
 import org.osgl.$;
 import org.osgl.util.C;
 
-import javax.sql.DataSource;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.sql.DataSource;
 
 /**
  * Provide HikariCP data source
@@ -76,6 +76,11 @@ public class HikariDataSourceProvider extends DataSourceProvider {
             hc.setIdleTimeout(conf.maxInactiveTimeSecs * 1000);
         }
 
+        s = miscConf.get("connectionInitSql");
+        if (null != s) {
+            hc.setConnectionInitSql(s);
+        }
+
         s = miscConf.get("maxLifetime");
         if (null != s) {
             long n = Long.parseLong(s);
@@ -96,7 +101,7 @@ public class HikariDataSourceProvider extends DataSourceProvider {
 
     @Override
     public Map<String, String> confKeyMapping() {
-        return C.map("jdbcUrl", "url",
+        return C.Map("jdbcUrl", "url",
                 "maximumPoolSize", "maxConnections",
                 "minimumIdle", "minConnections",
                 "connectionTimeout", "waitTimeout"

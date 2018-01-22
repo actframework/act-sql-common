@@ -111,3 +111,128 @@ Default value: `false` unless `h2` is used as database
 Specify should framework to generate and run drop table DDL
  
 Default value: `false`
+
+### 3. HikariCP specific configuration
+
+#### 3.1 `idleTimeout`
+
+```java
+String s = miscConf.get("idleTimeout");
+if (null != s) {
+    int n = Integer.parseInt(s);
+    hc.setIdleTimeout(n);
+} else {
+    hc.setIdleTimeout(conf.maxInactiveTimeSecs * 1000);
+}
+```
+
+#### 3.2 `connectionInitSql`
+
+```java
+s = miscConf.get("connectionInitSql");
+if (null != s) {
+    hc.setConnectionInitSql(s);
+}
+```
+
+#### 3.3 `maxLifetime`
+
+```java
+s = miscConf.get("maxLifetime");
+if (null != s) {
+    long n = Long.parseLong(s);
+    hc.setMaxLifetime(n);
+} else {
+    hc.setMaxLifetime(conf.maxAgeMinutes * 60 * 1000L);
+}
+```
+
+#### 3.4 `poolName`
+
+```java
+s = miscConf.get("poolName");
+if (null != s) {
+    hc.setPoolName(s);
+}
+```
+
+### 4. Druid specific configuration
+
+#### 4.1 `initialSize`
+
+```java
+DruidDataSource source = new DruidDataSource();
+String s = miscConf.get("initialSize");
+if (null != s) {
+    source.setInitialSize(Integer.parseInt(s));
+} else {
+    source.setInitialSize(source.getMinIdle());
+}
+```
+
+#### 4.2 `timeBetweenEvictionRunsMillis`
+
+```java
+s = miscConf.get("timeBetweenEvictionRunsMillis");
+if (null != s) {
+    source.setTimeBetweenEvictionRunsMillis(Long.parseLong(s));
+}
+```
+
+#### 4.3 `minEvictableIdleTimeMillis`
+
+```java
+s = miscConf.get("minEvictableIdleTimeMillis");
+if (null != s) {
+    source.setMinEvictableIdleTimeMillis(Long.parseLong(s));
+}
+```
+
+#### 4.4 `testWhileIdle`
+
+```java
+s = miscConf.get("testWhileIdle");
+if (null != s) {
+    source.setTestWhileIdle(Boolean.parseBoolean(s));
+}
+```
+
+#### 4.5 `testOnBorrow`
+
+```java
+s = miscConf.get("testOnBorrow");
+if (null != s) {
+    source.setTestOnBorrow(Boolean.parseBoolean(s));
+}
+```
+
+#### 4.6 `testOnReturn`
+
+```java
+s = miscConf.get("testOnReturn");
+if (null != s) {
+    source.setTestOnReturn(Boolean.parseBoolean(s));
+}
+```
+
+#### 4.7 `filters`
+
+```java
+s = miscConf.get("filters");
+if (null != s) {
+    try {
+        source.setFilters(s);
+    } catch (SQLException e) {
+        throw E.unexpected(e);
+    }
+}
+```
+
+#### 4.8 `poolPreparedStatements`
+
+```java
+s = miscConf.get("poolPreparedStatements");
+if (null != s) {
+    source.setPoolPreparedStatements(Boolean.parseBoolean(s));
+}
+```

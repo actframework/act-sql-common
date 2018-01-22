@@ -1,5 +1,8 @@
 # act-sql-common CHANGE LOG
 
+1.2.1
+* Support `HikariCP.setConnectionInitSql` configuration #8
+
 1.2.0
 * update act to 1.6.0
 
