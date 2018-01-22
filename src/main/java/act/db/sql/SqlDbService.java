@@ -265,7 +265,7 @@ public abstract class SqlDbService extends DbService {
         return config.fieldNamingConvention.toDb(propertyName);
     }
 
-    private void executeDdl() {
+    protected void executeDdl() {
         Set<Class> models = modelClasses();
         if (models.isEmpty()) {
             return;
