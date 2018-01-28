@@ -41,7 +41,7 @@
   <properties>
     <scm.url>git@github.com:actframework/act-sql-common.git</scm.url>
 
-    <jboss-transaction-api.version>2.0.0.Alpha1</jboss-transaction-api.version>
+    <jboss-transaction-api.version>1.1.1.Final</jboss-transaction-api.version>
     <ebean.version>8.8.1</ebean.version>
     <ebean-agent.version>8.1.1</ebean-agent.version>
     <ebean-agent-loader.version>2.1.2</ebean-agent-loader.version>
