@@ -47,6 +47,7 @@
     <persistence-api.version>1.0</persistence-api.version>
     <HikariCP.version>2.7.4</HikariCP.version>
     <druid.version>1.1.6</druid.version>
+    <jta-1.2.version>1.1.1.Final</jta-1.2.version>
 
     <act-test.version>0.9.0-BETA-1</act-test.version>
 
@@ -59,6 +60,12 @@
   </scm>
 
   <dependencies>
+
+    <dependency>
+      <groupId>org.jboss.spec.javax.transaction</groupId>
+      <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+      <version>${jta-1.2.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.avaje.ebean</groupId>
