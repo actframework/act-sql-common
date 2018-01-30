@@ -20,6 +20,8 @@ package act.db.sql.datasource;
  * #L%
  */
 
+import static java.sql.Connection.*;
+
 import act.db.sql.DataSourceConfig;
 import act.db.sql.DataSourceProvider;
 import act.db.sql.monitor.DataSourceStatus;
@@ -52,6 +54,7 @@ public class HikariDataSourceProvider extends DataSourceProvider {
             logger.trace("min conn: %s", conf.minConnections);
             logger.trace("autoCommit: %s", conf.autoCommit);
         }
+        hc.setTransactionIsolation(isolationLevelLookup.get(conf.isolationLevel));
         hc.setJdbcUrl(conf.url);
         hc.setUsername(conf.username);
         hc.setPassword(conf.password);
@@ -126,4 +129,12 @@ public class HikariDataSourceProvider extends DataSourceProvider {
     private void release(HikariDataSource ds) {
         ds.close();
     }
+
+    private Map<Integer, String> isolationLevelLookup = C.Map(
+            TRANSACTION_NONE, "TRANSACTION_NONE",
+            TRANSACTION_READ_UNCOMMITTED, "TRANSACTION_READ_UNCOMMITTED",
+            TRANSACTION_READ_COMMITTED, "TRANSACTION_READ_COMMITTED",
+            TRANSACTION_REPEATABLE_READ, "TRANSACTION_REPEATABLE_READ",
+            TRANSACTION_SERIALIZABLE, "TRANSACTION_SERIALIZABLE"
+    );
 }

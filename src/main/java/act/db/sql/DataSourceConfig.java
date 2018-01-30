@@ -28,6 +28,7 @@ import org.osgl.exception.ConfigurationException;
 import org.osgl.util.C;
 import org.osgl.util.E;
 import org.osgl.util.Keyword;
+import org.osgl.util.N;
 
 import java.sql.Connection;
 import java.util.Map;
@@ -121,9 +122,16 @@ public class DataSourceConfig implements SimpleBean {
 
         String isoLevel = get(conf, "isolationLevel");
         if (null != isoLevel) {
-            isoLevel = Keyword.of(isoLevel.toUpperCase()).constantName();
-            E.invalidConfigurationIf(!isolationLevels.containsKey(isoLevel), "Unknown isolationLevel: %s", isoLevel);
-            this.isolationLevel = isolationLevels.get(isoLevel);
+            if (N.isInt(isoLevel)) {
+                this.isolationLevel = Integer.parseInt(isoLevel);
+            } else {
+                isoLevel = Keyword.of(isoLevel.toUpperCase()).constantName();
+                if (isoLevel.startsWith("TRANSACTION_")) {
+                    isoLevel = isoLevel.substring("TRANSACTION_".length());
+                }
+                E.invalidConfigurationIf(!isolationLevels.containsKey(isoLevel), "Unknown isolationLevel: %s", isoLevel);
+                this.isolationLevel = isolationLevels.get(isoLevel);
+            }
         }
 
         ensureDefaultDatasourceConfig();

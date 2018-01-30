@@ -48,6 +48,7 @@ public class DruidDataSourceProvider extends DataSourceProvider {
         source.setUsername(conf.username);
         source.setPassword(conf.password);
         source.setDriverClassName(conf.driver);
+        source.setDefaultTransactionIsolation(conf.isolationLevel);
         source.setMinIdle(conf.minConnections);
         source.setMaxWait(conf.waitTimeoutMillis);
         source.setValidationQuery(conf.heartbeatSql);
