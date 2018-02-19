@@ -266,7 +266,7 @@ public abstract class SqlDbService extends DbService {
     }
 
     protected void executeDdl() {
-        Set<Class> models = modelClasses();
+        Set<Class> models = entityClasses();
         if (models.isEmpty()) {
             return;
         }

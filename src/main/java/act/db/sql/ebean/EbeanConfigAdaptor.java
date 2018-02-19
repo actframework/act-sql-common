@@ -20,6 +20,8 @@ package act.db.sql.ebean;
  * #L%
  */
 
+import static act.db.sql.util.NamingConvention.Default.MATCHING;
+
 import act.db.sql.SqlDbService;
 import act.db.sql.SqlDbServiceConfig;
 import com.avaje.ebean.config.MatchingNamingConvention;
@@ -28,12 +30,10 @@ import com.avaje.ebean.config.ServerConfig;
 import com.avaje.ebean.config.UnderscoreNamingConvention;
 import org.avaje.datasource.DataSourceConfig;
 
-import javax.inject.Singleton;
-import javax.sql.DataSource;
 import java.util.Properties;
 import java.util.Set;
-
-import static act.db.sql.util.NamingConvention.Default.MATCHING;
+import javax.inject.Singleton;
+import javax.sql.DataSource;
 
 /**
  * Adapt {@link act.db.sql.SqlDbServiceConfig} to {@link com.avaje.ebean.config.ServerConfig}
@@ -58,7 +58,7 @@ public class EbeanConfigAdaptor {
 
         config.setNamingConvention(namingConvention(svcConfig));
 
-        Set<Class> modelClasses = svc.modelClasses();
+        Set<Class> modelClasses = svc.entityClasses();
         if (null != modelClasses && !modelClasses.isEmpty()) {
             for (Class modelClass : modelClasses) {
                 config.addClass(modelClass);
