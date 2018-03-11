@@ -1,9 +1,15 @@
 # act-sql-common CHANGE LOG
 
+1.3.1 - 11/Mar/2018
+* merge from 1.2.1 for `HikariCP.setConnectionInitSql`
+
 1.3.0
 * Update to act-1.7.x
 * Update to JPA 2.2
 * Add JTA into dependency
+
+1.2.1
+* Support `HikariCP.setConnectionInitSql` configuration #8
 
 1.2.0
 * update act to 1.6.0

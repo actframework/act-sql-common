@@ -79,6 +79,11 @@ public class HikariDataSourceProvider extends DataSourceProvider {
             hc.setIdleTimeout(conf.maxInactiveTimeSecs * 1000);
         }
 
+        s = miscConf.get("connectionInitSql");
+        if (null != s) {
+            hc.setConnectionInitSql(s);
+        }
+
         s = miscConf.get("maxLifetime");
         if (null != s) {
             long n = Long.parseLong(s);

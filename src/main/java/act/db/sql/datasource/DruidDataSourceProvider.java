@@ -62,44 +62,44 @@ public class DruidDataSourceProvider extends DataSourceProvider {
             source.setInitialSize(source.getMinIdle());
         }
 
-        s = miscConf.get("timeBetweenEvictionRunsMillis");
-        if (null != s) {
-            source.setTimeBetweenEvictionRunsMillis(Long.parseLong(s));
-        }
+s = miscConf.get("timeBetweenEvictionRunsMillis");
+if (null != s) {
+    source.setTimeBetweenEvictionRunsMillis(Long.parseLong(s));
+}
 
-        s = miscConf.get("minEvictableIdleTimeMillis");
-        if (null != s) {
-            source.setMinEvictableIdleTimeMillis(Long.parseLong(s));
-        }
+s = miscConf.get("minEvictableIdleTimeMillis");
+if (null != s) {
+    source.setMinEvictableIdleTimeMillis(Long.parseLong(s));
+}
 
-        s = miscConf.get("testWhileIdle");
-        if (null != s) {
-            source.setTestWhileIdle(Boolean.parseBoolean(s));
-        }
+s = miscConf.get("testWhileIdle");
+if (null != s) {
+    source.setTestWhileIdle(Boolean.parseBoolean(s));
+}
 
-        s = miscConf.get("testOnBorrow");
-        if (null != s) {
-            source.setTestOnBorrow(Boolean.parseBoolean(s));
-        }
+s = miscConf.get("testOnBorrow");
+if (null != s) {
+    source.setTestOnBorrow(Boolean.parseBoolean(s));
+}
 
-        s = miscConf.get("testOnReturn");
-        if (null != s) {
-            source.setTestOnReturn(Boolean.parseBoolean(s));
-        }
+s = miscConf.get("testOnReturn");
+if (null != s) {
+    source.setTestOnReturn(Boolean.parseBoolean(s));
+}
 
-        s = miscConf.get("filters");
-        if (null != s) {
-            try {
-                source.setFilters(s);
-            } catch (SQLException e) {
-                throw E.unexpected(e);
-            }
-        }
+s = miscConf.get("filters");
+if (null != s) {
+    try {
+        source.setFilters(s);
+    } catch (SQLException e) {
+        throw E.unexpected(e);
+    }
+}
 
-        s = miscConf.get("poolPreparedStatements");
-        if (null != s) {
-            source.setPoolPreparedStatements(Boolean.parseBoolean(s));
-        }
+s = miscConf.get("poolPreparedStatements");
+if (null != s) {
+    source.setPoolPreparedStatements(Boolean.parseBoolean(s));
+}
 
         created.add(source);
         return source;
