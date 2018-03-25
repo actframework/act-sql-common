@@ -1,5 +1,9 @@
 # act-sql-common CHANGE LOG
 
+1.3.2 - 25/Mar/2018
+* Update act to 1.8.2
+* Update druid to 1.1.9
+
 1.3.1 - 11/Mar/2018
 * merge from 1.2.1 for `HikariCP.setConnectionInitSql`
 
