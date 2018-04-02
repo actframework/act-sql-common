@@ -1,5 +1,8 @@
 # act-sql-common CHANGE LOG
 
+1.3.3 - 02/Apr/2018
+* update act to 1.8.5
+
 1.3.2 - 25/Mar/2018
 * Update act to 1.8.2
 * Update druid to 1.1.9
