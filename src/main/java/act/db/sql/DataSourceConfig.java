@@ -134,7 +134,7 @@ public class DataSourceConfig implements SimpleBean {
             }
         }
 
-        ensureDefaultDatasourceConfig();
+        ensureDefaultDatasourceConfig(conf);
 
         customProperties = conf;
     }
@@ -153,10 +153,11 @@ public class DataSourceConfig implements SimpleBean {
         return conf.containsKey(key) ? Boolean.parseBoolean(get(conf, key)) : def;
     }
 
-    protected void ensureDefaultDatasourceConfig() {
+    protected void ensureDefaultDatasourceConfig(Map<String, String> conf) {
         if (null == username) {
             LOGGER.warn("No data source user configuration specified. Will use the default 'sa' user");
             username = "sa";
+            conf.put("username", username);
         }
 
         if (null == password) {
@@ -168,6 +169,7 @@ public class DataSourceConfig implements SimpleBean {
                 Class.forName("org.h2.Driver");
                 LOGGER.warn("No database URL configuration specified. Will use the default h2 inmemory test database");
                 url = "jdbc:h2:./test";
+                conf.put("url", url);
             } catch (ClassNotFoundException e) {
                 throw new ConfigurationException("No database URL configuration specified to db service: " + id);
             }
@@ -186,6 +188,8 @@ public class DataSourceConfig implements SimpleBean {
                 driver = "org.postgresql.Driver";
             } else if (url.contains("jdbc:h2:")) {
                 driver = "org.h2.Driver";
+            } else if (url.contains("jdbc.mariadb")) {
+                driver = "org.mariadb.jdbc.Driver";
             } else if (url.contains("jdbc:oracle")) {
                 driver = "oracle.jdbc.OracleDriver";
             } else if (url.contains("sqlserver")) {
@@ -195,6 +199,7 @@ public class DataSourceConfig implements SimpleBean {
             } else {
                 throw E.invalidConfiguration("JDBC driver needs to be configured for datasource: %s", id);
             }
+            conf.put("driver", driver);
             LOGGER.warn("JDBC driver not configured, system automatically set to: " + driver);
         }
     }

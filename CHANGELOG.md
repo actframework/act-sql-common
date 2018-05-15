@@ -1,5 +1,9 @@
 # act-sql-common CHANGE LOG
 
+1.3.4 - 15/May/2018
+* Support auto setup driver for MariaDB #10
+* update act to 1.8.8-RC4
+
 1.3.3 - 02/Apr/2018
 * update act to 1.8.5
 
