@@ -182,7 +182,11 @@ public abstract class SqlDbService extends DbService {
     protected void releaseResources() {
         DataSourceProvider dsp = null == config ? null : dataSourceProvider();
         if (null != dsp) {
-            dsp.destroy();
+            try {
+                dsp.destroy();
+            } catch (Exception e) {
+                // just ignore it
+            }
         }
         ds = null;
         config = null;

@@ -1,5 +1,9 @@
 # act-sql-common CHANGE LOG
 
+1.3.5
+
+* It shall ignore the Exception raised by data source during shutdown process. #12
+
 1.3.4 - 15/May/2018
 * Support auto setup driver for MariaDB #10
 * update act to 1.8.8-RC5
