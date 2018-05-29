@@ -25,6 +25,7 @@ import act.db.sql.datasource.SharedDataSourceProvider;
 import act.db.sql.util.NamingConvention;
 import org.osgl.util.C;
 import org.osgl.util.E;
+import org.osgl.util.Keyword;
 import org.osgl.util.S;
 
 import java.util.Map;
@@ -82,6 +83,8 @@ public final class SqlDbServiceConfig {
                 dsProvider = HIKARI_PROVIDER;
             } else if (s.contains("druid")) {
                 dsProvider = DRUID_PROVDER;
+            } else if (Keyword.eq("built-in", s)) {
+                return DataSourceProvider.NULL_PROVIDER;
             }
         }
         DataSourceProvider provider;

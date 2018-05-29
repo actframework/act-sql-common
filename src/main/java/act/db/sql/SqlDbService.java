@@ -21,6 +21,7 @@ package act.db.sql;
  */
 
 import static act.app.event.SysEventId.PRE_LOAD_CLASSES;
+import static act.db.sql.DataSourceProvider.NULL_PROVIDER;
 
 import act.Act;
 import act.app.App;
@@ -28,21 +29,23 @@ import act.app.event.SysEventId;
 import act.conf.AppConfigKey;
 import act.db.DbService;
 import act.db.DbServiceInitialized;
+import act.db.sql.datasource.DataSourceProxy;
 import act.db.sql.datasource.SharedDataSourceProvider;
 import act.db.sql.ddl.DDL;
 import act.db.sql.monitor.DataSourceStatus;
+import act.db.sql.tx.TxContext;
+import act.db.sql.tx.TxInfo;
+import act.db.sql.tx.TxScopeEventListener;
 import act.db.sql.util.EbeanAgentLoader;
 import act.event.SysEventListenerBase;
 import org.osgl.$;
-import org.osgl.Osgl;
+import org.osgl.OsglConfig;
 import org.osgl.util.E;
 import org.osgl.util.S;
 import osgl.version.Version;
 
 import java.sql.DriverManager;
-import java.util.EventObject;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import javax.sql.DataSource;
 
 /**
@@ -59,10 +62,12 @@ public abstract class SqlDbService extends DbService {
         // it's static method, e.g. `println`.
         // This is to avoid issues like https://github.com/actframework/actframework/issues/249
         DriverManager.println("loading DriverManager proactively");
+        OsglConfig.addGlobalMappingFilter("starts:_ebean_");
     }
 
     protected SqlDbServiceConfig config;
     protected DataSource ds;
+    protected DataSource dsReadOnly;
     private boolean initialized;
 
     public SqlDbService(final String dbId, final App app, final Map<String, String> config) {
@@ -70,7 +75,7 @@ public abstract class SqlDbService extends DbService {
         final SqlDbService me = this;
         app.eventBus().bindAsync(SysEventId.SINGLETON_PROVISIONED, new SysEventListenerBase() {
             @Override
-            public void on(EventObject event) throws Exception {
+            public void on(EventObject event) {
                 if (isTraceEnabled()) {
                     trace("trigger on SINGLETON_PROVISIONED event: %s", dbId);
                 }
@@ -159,10 +164,30 @@ public abstract class SqlDbService extends DbService {
 
     /**
      * Returns a {@link DataSource} instance loaded by this DbService
+     *
+     * @param readonly return readonly datasource if true
+     * @return the datasource of this service
+     */
+    public DataSource dataSource(boolean readonly) {
+        return readonly ? dsReadOnly : ds;
+    }
+
+    /**
+     * Returns a {@link DataSource} instance loaded by this DbService
      * @return the datasource of this service
      */
     public DataSource dataSource() {
         return ds;
+    }
+
+    /**
+     * Returns a {@link DataSource} instance loaded by this DbService for readonly
+     * operations.
+     *
+     * @return the readonly datasource of this service
+     */
+    public DataSource dataSourceReadOnly() {
+        return dsReadOnly;
     }
 
     public DataSourceProvider dataSourceProvider() {
@@ -189,7 +214,15 @@ public abstract class SqlDbService extends DbService {
             }
         }
         ds = null;
+        if (dsReadOnly instanceof DataSourceProxy) {
+            ((DataSourceProxy) dsReadOnly).clear();
+        }
+        dsReadOnly = null;
         config = null;
+    }
+
+    protected DataSourceProvider builtInDataSourceProvider() {
+        return NULL_PROVIDER;
     }
 
     /**
@@ -203,30 +236,48 @@ public abstract class SqlDbService extends DbService {
         if (isTraceEnabled()) {
             trace("init data source: %s", id());
         }
-        final DataSourceProvider dsProvider = config.dataSourceProvider();
-        if (null != dsProvider) {
-            if (dsProvider.initialized()) {
-                DataSourceConfig dsConfig = this.config.dataSourceConfig;
-                if (dsProvider instanceof SharedDataSourceProvider) {
-                    dsConfig = ((SharedDataSourceProvider) dsProvider).dataSourceConfig();
-                }
-                ds = dsProvider.createDataSource(dsConfig);
-                dataSourceProvided(ds, dsConfig);
-            } else {
-                dsProvider.setInitializationCallback(new $.Visitor<DataSourceProvider>() {
-                    @Override
-                    public void visit(DataSourceProvider dataSourceProvider) throws Osgl.Break {
-                        DataSourceConfig dsConfig = SqlDbService.this.config.dataSourceConfig;
-                        if (dsProvider instanceof SharedDataSourceProvider) {
-                            dsConfig = ((SharedDataSourceProvider) dsProvider).dataSourceConfig();
-                        }
-                        ds = dataSourceProvider.createDataSource(dsConfig);
-                        dataSourceProvided(ds, dsConfig);
-                    }
-                });
-            }
+        DataSourceProvider dsProvider = config.dataSourceProvider();
+        if (null == dsProvider) {
+            dsProvider = builtInDataSourceProvider();
+            E.unsupportedIf(null == dsProvider, "%s does not support built-in datasource", getClass().getName());
+        }
+        if (dsProvider.initialized()) {
+            doInitDataSource(dsProvider);
         } else {
-            ds = createDataSource();
+            final DataSourceProvider finalProvider = dsProvider;
+            dsProvider.setInitializationCallback(new $.Visitor<DataSourceProvider>() {
+                @Override
+                public void visit(DataSourceProvider dataSourceProvider) throws $.Break {
+                    doInitDataSource(finalProvider);
+                }
+            });
+        }
+    }
+
+    private void doInitDataSource(DataSourceProvider dsProvider) {
+        DataSourceConfig dsConfig = this.config.dataSourceConfig;
+        if (dsProvider instanceof SharedDataSourceProvider) {
+            dsConfig = ((SharedDataSourceProvider) dsProvider).dataSourceConfig();
+        }
+        ds = dsProvider.createDataSource(dsConfig);
+        dataSourceProvided(ds, dsConfig, false);
+        processSlave(dsProvider, dsConfig);
+    }
+
+    private void processSlave(DataSourceProvider dsProvider, DataSourceConfig dsConfig) {
+        dsReadOnly = ds;
+        if (dsConfig.hasSlave()) {
+            if (dsConfig.hasSoleSlave()) {
+                dsReadOnly = dsProvider.createDataSource(dsConfig.soleSlave());
+            } else {
+                List<DataSource> slaves = new ArrayList<>();
+                for (DataSourceConfig slaveConf : dsConfig.slaveDataSourceConfigurations) {
+                    DataSource slave = dsProvider.createDataSource(slaveConf);
+                    slaves.add(slave);
+                }
+                dsReadOnly = new DataSourceProxy(slaves);
+            }
+            dataSourceProvided(dsReadOnly, dsConfig, true);
         }
     }
 
@@ -235,23 +286,12 @@ public abstract class SqlDbService extends DbService {
      * Subclass can use this method to do relevant logic that require a
      * datasource to be initialized.
      *
-     * Note this method is mutually exclusive with {@link #createDataSource()}
-     *
      * @param dataSource the datasource
      * @param dataSourceConfig the datasource config used to load the data source
+     * @param readonly is the datasource readonly
      */
-    protected void dataSourceProvided(DataSource dataSource, DataSourceConfig dataSourceConfig) {}
+    protected void dataSourceProvided(DataSource dataSource, DataSourceConfig dataSourceConfig, boolean readonly) {}
 
-    /**
-     * If no data source provider is specified then it relies on the sub
-     * class to provide the new datasource instance.
-     *
-     * Note this method is mutually exclusive with
-     * {@link #dataSourceProvided(DataSource, DataSourceConfig)}
-     *
-     * @return an new datasource instance
-     */
-    protected abstract DataSource createDataSource();
 
     /**
      * Sub class shall implement this method and report if it support
@@ -275,6 +315,51 @@ public abstract class SqlDbService extends DbService {
             return;
         }
         DDL.execute(this, this.config);
+    }
+
+    public boolean beginTxIfRequired(Object delegate) {
+        TxInfo info = TxContext.info();
+        if (null != info && info.withinTxScope) {
+            if (null != info.listener) {
+                return true;
+            }
+            doStartTx(delegate, info.readOnly);
+            info.listener = createTxListener(delegate);
+            return true;
+        }
+        return false;
+    }
+
+    public void forceBeginTx(Object delegate) {
+        TxInfo info = TxContext.info();
+        if (null != info && null != info.listener) {
+            return;
+        }
+        if (null == info || !info.withinTxScope) {
+            info = TxContext.enterTxScope(false);
+        }
+        E.illegalStateIf(info.readOnly, "Existing TX is read only");
+        doStartTx(delegate, false);
+        info.listener = createTxListener(delegate);
+    }
+
+    protected abstract void doStartTx(Object delegate, boolean readOnly);
+    protected abstract void doRollbackTx(Object delegate, Throwable cause);
+    protected abstract void doEndTxIfActive(Object delegate);
+
+    protected TxScopeEventListener createTxListener(final Object delegate) {
+        return new TxScopeEventListener() {
+
+            @Override
+            public void exit() {
+                doEndTxIfActive(delegate);
+            }
+
+            @Override
+            public void rollback(Throwable throwable) {
+                doRollbackTx(delegate, throwable);
+            }
+        };
     }
 
 }

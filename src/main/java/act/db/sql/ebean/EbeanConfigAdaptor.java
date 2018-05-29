@@ -82,19 +82,8 @@ public class EbeanConfigAdaptor {
 
         config.setMinConnections(actConfig.minConnections);
         config.setMaxConnections(actConfig.maxConnections);
-        config.setHeartbeatSql(actConfig.heartbeatSql);
         config.setIsolationLevel(actConfig.isolationLevel);
-        config.setMaxAgeMinutes(actConfig.maxAgeMinutes);
-        config.setMaxInactiveTimeSecs(actConfig.maxInactiveTimeSecs);
-        config.setHeartbeatFreqSecs(actConfig.heartbeatFreqSecs);
-        config.setCstmtCacheSize(actConfig.cstmtCacheSize);
-        config.setPstmtCacheSize(actConfig.pstmtCacheSize);
-        config.setTrimPoolFreqSecs(actConfig.trimPoolFreqSecs);
-        config.setWaitTimeoutMillis(actConfig.waitTimeoutMillis);
-        config.setLeakTimeMinutes(actConfig.leakTimeMinutes);
-        config.setPoolListener(actConfig.poolListener);
-        config.setOffline(actConfig.offline);
-        config.setCaptureStackTrace(actConfig.captureStackTrace);
+        config.setWaitTimeoutMillis(actConfig.connectionTimeout);
 
         return config;
     }

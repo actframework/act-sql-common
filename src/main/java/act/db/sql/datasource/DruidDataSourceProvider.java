@@ -26,11 +26,10 @@ import act.db.sql.monitor.DataSourceStatus;
 import com.alibaba.druid.pool.DruidDataSource;
 import org.osgl.$;
 import org.osgl.util.C;
-import org.osgl.util.E;
 
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import javax.sql.DataSource;
 
@@ -49,58 +48,15 @@ public class DruidDataSourceProvider extends DataSourceProvider {
         source.setPassword(conf.password);
         source.setDriverClassName(conf.driver);
         source.setDefaultTransactionIsolation(conf.isolationLevel);
-        source.setMinIdle(conf.minConnections);
-        source.setMaxWait(conf.waitTimeoutMillis);
-        source.setValidationQuery(conf.heartbeatSql);
-        source.setMaxPoolPreparedStatementPerConnectionSize(conf.pstmtCacheSize);
+        source.setInitialSize(conf.minConnections);
+        source.setMaxActive(conf.maxConnections);
+        source.setMaxWait(conf.connectionTimeout * 1000);
+        source.setDefaultAutoCommit(conf.autoCommit);
+        source.setDefaultReadOnly(conf.readOnly);
 
-        Map<String, String> miscConf = conf.customProperties;
-        String s = miscConf.get("initialSize");
-        if (null != s) {
-            source.setInitialSize(Integer.parseInt(s));
-        } else {
-            source.setInitialSize(source.getMinIdle());
-        }
-
-s = miscConf.get("timeBetweenEvictionRunsMillis");
-if (null != s) {
-    source.setTimeBetweenEvictionRunsMillis(Long.parseLong(s));
-}
-
-s = miscConf.get("minEvictableIdleTimeMillis");
-if (null != s) {
-    source.setMinEvictableIdleTimeMillis(Long.parseLong(s));
-}
-
-s = miscConf.get("testWhileIdle");
-if (null != s) {
-    source.setTestWhileIdle(Boolean.parseBoolean(s));
-}
-
-s = miscConf.get("testOnBorrow");
-if (null != s) {
-    source.setTestOnBorrow(Boolean.parseBoolean(s));
-}
-
-s = miscConf.get("testOnReturn");
-if (null != s) {
-    source.setTestOnReturn(Boolean.parseBoolean(s));
-}
-
-s = miscConf.get("filters");
-if (null != s) {
-    try {
-        source.setFilters(s);
-    } catch (SQLException e) {
-        throw E.unexpected(e);
-    }
-}
-
-s = miscConf.get("poolPreparedStatements");
-if (null != s) {
-    source.setPoolPreparedStatements(Boolean.parseBoolean(s));
-}
-
+        Properties prop = new Properties();
+        prop.putAll(conf.customProperties);
+        source.configFromPropety(prop);
         created.add(source);
         return source;
     }

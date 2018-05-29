@@ -30,10 +30,11 @@ import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import org.osgl.$;
 import org.osgl.util.C;
+import org.osgl.util.S;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
 import javax.sql.DataSource;
 
 /**
@@ -41,11 +42,28 @@ import javax.sql.DataSource;
  */
 public class HikariDataSourceProvider extends DataSourceProvider {
 
+    private static final Set<String> HIKARI_PROPS = new HashSet<>();
+    static {
+        Method[] methods = HikariConfig.class.getDeclaredMethods();
+        for (Method method : methods) {
+            int modifier = method.getModifiers();
+            if (Modifier.isStatic(modifier) || !Modifier.isPublic(modifier)) {
+                continue;
+            }
+            String name = method.getName();
+            if (name.startsWith("set")) {
+                String key = name.substring(3).toUpperCase(Locale.ENGLISH);
+                HIKARI_PROPS.add(key);
+            }
+        }
+    }
+
     private Set<HikariDataSource> created = new HashSet<>();
 
     @Override
     public DataSource createDataSource(DataSourceConfig conf) {
-        HikariConfig hc = new HikariConfig();
+        Properties prop = forHikariCp(conf.customProperties);
+        HikariConfig hc = new HikariConfig(prop);
         if (logger.isTraceEnabled()) {
             logger.trace("creating HikariCP data source ...");
             logger.trace("url: %s", conf.url);
@@ -66,36 +84,9 @@ public class HikariDataSourceProvider extends DataSourceProvider {
             // because HikariCP recommend not to set this value by default
             hc.setMinimumIdle(minConn);
         }
-        hc.setConnectionTimeout(conf.waitTimeoutMillis);
+        hc.setConnectionTimeout(conf.connectionTimeout * 1000);
         hc.setAutoCommit(conf.autoCommit);
-        hc.setConnectionTestQuery(conf.heartbeatSql);
-
-        Map<String, String> miscConf = conf.customProperties;
-        String s = miscConf.get("idleTimeout");
-        if (null != s) {
-            int n = Integer.parseInt(s);
-            hc.setIdleTimeout(n);
-        } else {
-            hc.setIdleTimeout(conf.maxInactiveTimeSecs * 1000);
-        }
-
-        s = miscConf.get("connectionInitSql");
-        if (null != s) {
-            hc.setConnectionInitSql(s);
-        }
-
-        s = miscConf.get("maxLifetime");
-        if (null != s) {
-            long n = Long.parseLong(s);
-            hc.setMaxLifetime(n);
-        } else {
-            hc.setMaxLifetime(conf.maxAgeMinutes * 60 * 1000L);
-        }
-
-        s = miscConf.get("poolName");
-        if (null != s) {
-            hc.setPoolName(s);
-        }
+        hc.setReadOnly(conf.readOnly);
 
         HikariDataSource ds = new HikariDataSource(hc);
         created.add(ds);
@@ -129,6 +120,22 @@ public class HikariDataSourceProvider extends DataSourceProvider {
         }
         created.clear();
         super.releaseResources();
+    }
+
+    private Properties forHikariCp(Map<String, String> conf) {
+        Properties prop = new Properties();
+        for (Map.Entry<String, String> entry : conf.entrySet()) {
+            String key = S.camelCase(entry.getKey());
+            if (isHikariCpProperty(key)) {
+                prop.put(key, entry.getValue());
+            }
+        }
+        return prop;
+    }
+
+
+    private boolean isHikariCpProperty(String key) {
+        return HIKARI_PROPS.contains(key.toUpperCase(Locale.ENGLISH));
     }
 
     private void release(HikariDataSource ds) {

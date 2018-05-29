@@ -20,26 +20,10 @@ package act.db.sql.tx;
  * #L%
  */
 
-import act.asm.Opcodes;
+public interface TxScopeEventListener {
 
-public class TxScopeHelper implements Opcodes {
+    void exit();
 
-    /**
-     * Entering an enhanced transactional method.
-     */
-    public static void enter(TxInfo txInfo) {
-        TxContext.enterTxScope(txInfo.readOnly);
-    }
-
-    /**
-     * Exiting an enhanced transactional method.
-     */
-    public static void exit(Object returnOrThrowable, int opCode) {
-        if (ATHROW == opCode) {
-            TxContext.exitTxScope((Throwable) returnOrThrowable);
-        } else {
-            TxContext.exitTxScope();
-        }
-    }
+    void rollback(Throwable throwable);
 
 }

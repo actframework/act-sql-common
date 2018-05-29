@@ -20,16 +20,36 @@ package act.db.sql;
  * #L%
  */
 
+import static act.db.sql.SqlDbService.DUMB_STATUS;
+
 import act.db.sql.monitor.DataSourceStatus;
 import act.util.DestroyableBase;
 import org.osgl.$;
 import org.osgl.logging.LogManager;
 import org.osgl.logging.Logger;
+import org.osgl.util.C;
 
-import javax.sql.DataSource;
 import java.util.Map;
+import javax.sql.DataSource;
 
 public abstract class DataSourceProvider extends DestroyableBase {
+
+    public static final DataSourceProvider NULL_PROVIDER = new DataSourceProvider() {
+        @Override
+        public DataSource createDataSource(DataSourceConfig conf) {
+            return null;
+        }
+
+        @Override
+        public Map<String, String> confKeyMapping() {
+            return C.Map();
+        }
+
+        @Override
+        public DataSourceStatus getStatus(DataSource ds) {
+            return DUMB_STATUS;
+        }
+    };
 
     protected $.Function<DataSourceProvider, ?> initializationCallback;
 
@@ -65,7 +85,7 @@ public abstract class DataSourceProvider extends DestroyableBase {
     }
 
     public void setInitializationCallback($.Function<DataSourceProvider, ?> callback) {
-        this.initializationCallback = $.notNull(callback);
+        this.initializationCallback = $.requireNotNull(callback);
         if (initialized()) {
             callback.apply(this);
         }
