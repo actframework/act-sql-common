@@ -1,6 +1,10 @@
 # act-sql-common CHANGE LOG
 
-1.3.5
+1.4.1
+
+* `SqlDbPlugin.applyTo(App)` issue #14
+
+1.4.0 - 29/May/2018
 
 * It shall ignore the Exception raised by data source during shutdown process. #12
 

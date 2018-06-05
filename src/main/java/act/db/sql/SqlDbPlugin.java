@@ -32,13 +32,13 @@ public abstract class SqlDbPlugin extends DbPlugin {
     private static boolean registered;
 
     @Override
-    protected void applyTo(App app) {
+    protected final void applyTo(App app) {
         if (registered) {
             return;
         }
         registered = true;
         super.applyTo(app);
-        app.jobManager().on(SysEventId.ACT_START, new Runnable() {
+        app.jobManager().on(SysEventId.STOP, new Runnable() {
             @Override
             public void run() {
                 registered = false;
@@ -56,5 +56,9 @@ public abstract class SqlDbPlugin extends DbPlugin {
                 TxContext.clear();
             }
         });
+        doExtendedApplyTo(app);
+    }
+
+    protected void doExtendedApplyTo(App app) {
     }
 }
