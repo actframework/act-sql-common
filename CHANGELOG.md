@@ -1,7 +1,8 @@
 # act-sql-common CHANGE LOG
 
-1.4.1
+1.4.1 - 7/Jun/2018
 
+* update to act-1.8.8-RC9
 * `SqlDbPlugin.applyTo(App)` issue #14
 
 1.4.0 - 29/May/2018
