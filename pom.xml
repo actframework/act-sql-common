@@ -20,7 +20,7 @@
 
   <artifactId>act-sql-common</artifactId>
   <packaging>jar</packaging>
-  <version>1.4.2-SNAPSHOT</version>
+  <version>1.4.2</version>
 
   <name>ACT SQL Common Module</name>
   <description>Provides Authentication/Authorization/Accounting service for Actframework based on osgl-aaa</description>
