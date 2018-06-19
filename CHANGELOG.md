@@ -1,5 +1,10 @@
 # act-sql-common CHANGE LOG
 
+1.4.2
+* `TxInfo` - exitTxScope logic issue #15
+* update to act-1.8.8-RC10
+* update druid to 1.1.10
+
 1.4.1 - 7/Jun/2018
 
 * update to act-1.8.8-RC9

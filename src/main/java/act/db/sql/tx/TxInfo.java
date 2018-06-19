@@ -35,19 +35,19 @@ public class TxInfo {
     }
 
     public void exitTxScope() {
-        this.withinTxScope = false;
         if (null != listener) {
             listener.exit();
             listener = null;
         }
+        this.withinTxScope = false;
     }
 
     public void exitTxScope(Throwable cause) {
-        this.withinTxScope = false;
         if (null != listener) {
             listener.rollback(cause);
             listener = null;
         }
+        this.withinTxScope = false;
     }
 
 }
