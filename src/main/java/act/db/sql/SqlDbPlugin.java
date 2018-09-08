@@ -25,7 +25,7 @@ import act.app.event.SysEventId;
 import act.db.DbPlugin;
 import act.db.sql.tx.TxContext;
 import act.event.ActEventListenerBase;
-import act.handler.event.PostHandle;
+import act.handler.event.BeforeResultCommit;
 
 public abstract class SqlDbPlugin extends DbPlugin {
 
@@ -50,9 +50,9 @@ public abstract class SqlDbPlugin extends DbPlugin {
                 TxContext.reset();
             }
         });
-        app.eventBus().bind(PostHandle.class, new ActEventListenerBase<PostHandle>() {
+        app.eventBus().bind(BeforeResultCommit.class, new ActEventListenerBase<BeforeResultCommit>() {
             @Override
-            public void on(PostHandle eventObject) {
+            public void on(BeforeResultCommit eventObject) {
                 TxContext.clear();
             }
         });

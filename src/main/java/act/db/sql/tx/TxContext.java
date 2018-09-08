@@ -44,7 +44,9 @@ public class TxContext {
 
     public static TxInfo enterTxScope(boolean readonly) {
         TxInfo info = info_.get();
-        E.illegalStateIf(null != info && info.withinTxScope);
+        // let's assume the semantic is SUPPORT, ie. when tx exists then use it
+        // otherwise create it.
+        // E.illegalStateIf(null != info && info.withinTxScope);
         if (null == info) {
             info = new TxInfo(readonly);
             info_.set(info);

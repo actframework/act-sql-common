@@ -1,5 +1,9 @@
 # act-sql-common CHANGE LOG
 
+1.4.3
+* Make TX follow JPA `TxType.REQUIRED` semantic #17
+* Apply new scope for implicit transaction #16
+
 1.4.2
 * `TxInfo` - exitTxScope logic issue #15
 * update to act-1.8.8-RC10
