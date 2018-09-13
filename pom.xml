@@ -20,7 +20,7 @@
 
   <artifactId>act-sql-common</artifactId>
   <packaging>jar</packaging>
-  <version>1.4.3-SNAPSHOT</version>
+  <version>1.4.3-EXP1-SNAPSHOT</version>
 
   <name>ACT SQL Common Module</name>
   <description>Provides Authentication/Authorization/Accounting service for Actframework based on osgl-aaa</description>
@@ -35,7 +35,7 @@
   <parent>
     <groupId>org.actframework</groupId>
     <artifactId>parent</artifactId>
-    <version>1.8.8-RC12-SNAPSHOT</version>
+    <version>1.8.8-RC12-EXP1-SNAPSHOT</version>
   </parent>
 
   <properties>

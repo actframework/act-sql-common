@@ -1,6 +1,7 @@
 # act-sql-common CHANGE LOG
 
 1.4.3
+* move act.db.sql.tx package to act-core act.db.tx - see https://github.com/actframework/actframework/issues/822
 * Make TX follow JPA `TxType.REQUIRED` semantic #17
 * Apply new scope for implicit transaction #16
 

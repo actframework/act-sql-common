@@ -20,7 +20,7 @@ package act.db.sql.test;
  * #L%
  */
 
-import act.db.sql.tx.TxContext;
+import act.db.tx.TxContext;
 import act.test.util.TxScopeProvider;
 import org.osgl.util.E;
 

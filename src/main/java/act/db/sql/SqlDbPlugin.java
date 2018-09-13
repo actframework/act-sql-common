@@ -23,7 +23,7 @@ package act.db.sql;
 import act.app.App;
 import act.app.event.SysEventId;
 import act.db.DbPlugin;
-import act.db.sql.tx.TxContext;
+import act.db.tx.TxContext;
 import act.event.ActEventListenerBase;
 import act.handler.event.BeforeResultCommit;
 
