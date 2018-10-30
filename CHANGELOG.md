@@ -1,5 +1,8 @@
 # act-sql-common CHANGE LOG
 
+1.4.3 - 30/Oct/2018
+* update to act-1.8.8
+
 1.4.2 - 19/Jun/2018
 * `TxInfo` - exitTxScope logic issue #15
 * update to act-1.8.8-RC10
