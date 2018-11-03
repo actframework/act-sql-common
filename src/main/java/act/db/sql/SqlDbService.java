@@ -73,15 +73,11 @@ public abstract class SqlDbService extends DbService {
     public SqlDbService(final String dbId, final App app, final Map<String, String> config) {
         super(dbId, app);
         final SqlDbService me = this;
-        app.eventBus().bindAsync(SysEventId.SINGLETON_PROVISIONED, new SysEventListenerBase() {
-            @Override
-            public void on(EventObject event) {
+        app.jobManager().alongWith(SysEventId.DEPENDENCY_INJECTOR_LOADED, "sql_db_service[" + id() + "]-init", new Runnable() {
+            public void run() {
                 if (isTraceEnabled()) {
                     trace("trigger on SINGLETON_PROVISIONED event: %s", dbId);
                 }
-                run();
-            }
-            private void run() {
                 try {
                     final boolean traceEnabled = isTraceEnabled();
                     if (traceEnabled) {
