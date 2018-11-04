@@ -33,9 +33,7 @@ import act.db.sql.datasource.DataSourceProxy;
 import act.db.sql.datasource.SharedDataSourceProvider;
 import act.db.sql.ddl.DDL;
 import act.db.sql.monitor.DataSourceStatus;
-import act.db.sql.tx.TxContext;
-import act.db.sql.tx.TxInfo;
-import act.db.sql.tx.TxScopeEventListener;
+import act.db.sql.tx.*;
 import act.db.sql.util.EbeanAgentLoader;
 import act.event.SysEventListenerBase;
 import org.osgl.$;
@@ -72,52 +70,17 @@ public abstract class SqlDbService extends DbService {
 
     public SqlDbService(final String dbId, final App app, final Map<String, String> config) {
         super(dbId, app);
-        final SqlDbService me = this;
-        app.jobManager().alongWith(SysEventId.DEPENDENCY_INJECTOR_LOADED, "sql_db_service[" + id() + "]-init", new Runnable() {
+        Runnable runnable = new Runnable() {
+            @Override
             public void run() {
-                if (isTraceEnabled()) {
-                    trace("trigger on SINGLETON_PROVISIONED event: %s", dbId);
-                }
-                try {
-                    final boolean traceEnabled = isTraceEnabled();
-                    if (traceEnabled) {
-                        trace("initializing %s", dbId);
-                    }
-                    me.config = new SqlDbServiceConfig(dbId, config);
-                    me.configured();
-                    if (traceEnabled) {
-                        trace("configured: %s", dbId);
-                    }
-                    me.initDataSource();
-                    if (traceEnabled) {
-                        trace("data source initialized: %s", dbId);
-                    }
-                    if (!me.config.isSharedDatasource() && !supportDdl() && me.config.createDdl()) {
-                        // the plugin doesn't support ddl generating and executing
-                        // we have to run our logic to get it done
-                        app.jobManager().on(SysEventId.START, new Runnable() {
-                            @Override
-                            public void run() {
-                                if (traceEnabled) {
-                                    trace("executing DDL: %s", dbId);
-                                }
-                                me.executeDdl();
-                            }
-                        });
-                    }
-                    me.initialized = true;
-                    if (traceEnabled) {
-                        trace("emitting db-svc-init event: %s", dbId);
-                    }
-                    app.eventBus().emit(new DbServiceInitialized(me));
-                    if (traceEnabled) {
-                        trace("db-svc-init event triggered: %s", dbId);
-                    }
-                } catch (RuntimeException e) {
-                    throw E.invalidConfiguration(e, "Error init SQL db service");
-                }
+                SqlDbService.this.init(app, dbId, config);
             }
-        });
+        };
+        if (app.isDev()) {
+            app.jobManager().alongWith(SysEventId.DEPENDENCY_INJECTOR_LOADED, "sql_db_service[" + id() + "]:init", runnable);
+        } else {
+            app.jobManager().post(SysEventId.DEPENDENCY_INJECTOR_LOADED, "sql_db_service[" + id() + "]:init", runnable);
+        }
         if (Act.isDev() && !supportDdl()) {
             // ensure ebean agent is load for automatically generating tables
             app.eventBus().bind(PRE_LOAD_CLASSES, new SysEventListenerBase(S.builder(dbId).append("-ebean-pre-cl")) {
@@ -135,6 +98,55 @@ public abstract class SqlDbService extends DbService {
                     }
                 }
             });
+        }
+    }
+
+    void init(final App app, final String dbId, Map<String, String> conf) {
+        if (isTraceEnabled()) {
+            trace("trigger on SINGLETON_PROVISIONED event: %s", dbId);
+        }
+        try {
+            final boolean traceEnabled = isTraceEnabled();
+            if (traceEnabled) {
+                trace("initializing %s", dbId);
+            }
+            this.config = new SqlDbServiceConfig(dbId, conf);
+            this.configured();
+            if (traceEnabled) {
+                trace("configured: %s", dbId);
+            }
+            this.initDataSource();
+            if (traceEnabled) {
+                trace("data source initialized: %s", dbId);
+            }
+            if (!this.config.isSharedDatasource() && !supportDdl() && this.config.createDdl()) {
+                // the plugin doesn't support ddl generating and executing
+                // we have to run our logic to get it done
+                app.jobManager().on(SysEventId.START, new Runnable() {
+                    @Override
+                    public void run() {
+                        if (traceEnabled) {
+                            trace("executing DDL: %s", dbId);
+                        }
+                        SqlDbService.this.executeDdl();
+                    }
+                });
+            }
+            this.initialized = true;
+            if (traceEnabled) {
+                trace("emitting db-svc-init event: %s", dbId);
+            }
+            app.jobManager().post(SysEventId.SINGLETON_PROVISIONED, new Runnable() {
+                @Override
+                public void run() {
+                    app.eventBus().emit(new DbServiceInitialized(SqlDbService.this));
+                    if (traceEnabled) {
+                        trace("db-svc-init event triggered: %s", dbId);
+                    }
+                }
+            }, true);
+        } catch (RuntimeException e) {
+            throw E.invalidConfiguration(e, "Error init SQL db service");
         }
     }
 

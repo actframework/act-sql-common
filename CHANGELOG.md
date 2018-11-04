@@ -1,6 +1,9 @@
 # act-sql-common CHANGE LOG
 
 1.4.4
+* update to act-1.8.9
+* Update SqlDbService init logic #18
+* update SqlDbService for
 * Make TX follow JPA `TxType.REQUIRED` semantic #17
 * Apply new scope for implicit transaction #16
 
