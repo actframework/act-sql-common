@@ -21,14 +21,12 @@ package act.db.sql.datasource;
  */
 
 import org.osgl.util.E;
+import org.osgl.util.IO;
 
+import java.io.Closeable;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.sql.*;
+import java.util.*;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
 
@@ -48,10 +46,15 @@ public class DataSourceProxy implements DataSource {
         limit = workers.size();
     }
 
-    public void clear() {
-        workers.clear();
+    public synchronized void clear() {
         limit = 0;
         cursor = 0;
+        for (DataSource ds : workers) {
+            if (ds instanceof Closeable) {
+                IO.close((Closeable) ds);
+            }
+        }
+        workers.clear();
     }
 
     private synchronized DataSource getOne() {
