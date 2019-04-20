@@ -1,5 +1,8 @@
 # act-sql-common CHANGE LOG
 
+1.4.5 - 20/Apr/2019
+* update to act-1.8.20
+
 1.4.4
 * update to act-1.8.9
 * Update SqlDbService init logic #18
