@@ -1,6 +1,6 @@
 # act-sql-common CHANGE LOG
 
-1.4.6
+1.4.6 - 16/Jun/2019
 * Error starting with db.default.datasource.provider configuration #22
 
 1.4.5 - 20/Apr/2019
