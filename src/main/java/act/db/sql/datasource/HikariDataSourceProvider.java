@@ -52,8 +52,11 @@ public class HikariDataSourceProvider extends DataSourceProvider {
             }
             String name = method.getName();
             if (name.startsWith("set")) {
-                String key = name.substring(3).toUpperCase(Locale.ENGLISH);
-                HIKARI_PROPS.add(key);
+                Class<?>[] paramTypes = method.getParameterTypes();
+                if (paramTypes.length == 1 && $.isSimpleType(paramTypes[0])) {
+                    String key = name.substring(3).toUpperCase(Locale.ENGLISH);
+                    HIKARI_PROPS.add(key);
+                }
             }
         }
     }
