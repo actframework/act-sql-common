@@ -1,0 +1,40 @@
+Scenario(23):
+  urlContext: /23
+  description: "[GH24] Allow inject SqlDbService and DataSource"
+  interactions:
+  - description: Verify inject EclipseLinkService
+    request:
+      get: elService
+    response:
+      json:
+        result: true
+  - description: Verify inject HibernateService
+    request:
+      get: hiService
+    response:
+      json:
+        result: true
+  - description: Verify inject BeeltSqlService
+    request:
+      get: beService
+    response:
+      json:
+        result: true
+  - description: Verify inject Eclipselink DataSource
+    request:
+      get: elDataSource
+    response:
+      json:
+        result: true
+  - description: Verify inject Hibernate DataSource
+    request:
+      get: hiDataSource
+    response:
+      json:
+        result: true
+  - description: Verify inject BeeltSql DataSource
+    request:
+      get: beDataSource
+    response:
+      json:
+        result: true
