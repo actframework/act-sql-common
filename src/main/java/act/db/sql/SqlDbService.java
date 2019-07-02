@@ -198,6 +198,10 @@ public abstract class SqlDbService extends DbService {
         return dsReadOnly;
     }
 
+    public DataSource newDataSource() {
+        return dataSourceProvider().createDataSource(dataSourceConfig());
+    }
+
     public DataSourceProvider dataSourceProvider() {
         return config.dataSourceProvider();
     }

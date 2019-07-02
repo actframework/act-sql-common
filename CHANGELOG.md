@@ -1,5 +1,10 @@
 # act-sql-common CHANGE LOG
 
+
+1.5.0
+* update to act-1.8.25
+* Allow inject SqlDbService and DataSource #23
+
 1.4.6 - 16/Jun/2019
 * Error starting with db.default.datasource.provider configuration #22
 

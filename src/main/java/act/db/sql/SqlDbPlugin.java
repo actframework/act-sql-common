@@ -23,6 +23,7 @@ package act.db.sql;
 import act.app.App;
 import act.app.event.SysEventId;
 import act.db.DbPlugin;
+import act.db.sql.inject.SqlDbProviders;
 import act.db.sql.tx.TxContext;
 import act.event.ActEventListenerBase;
 import act.handler.event.BeforeResultCommit;
@@ -32,7 +33,7 @@ public abstract class SqlDbPlugin extends DbPlugin {
     private static boolean registered;
 
     @Override
-    protected final void applyTo(App app) {
+    protected final void applyTo(final App app) {
         if (registered) {
             return;
         }
@@ -47,6 +48,7 @@ public abstract class SqlDbPlugin extends DbPlugin {
         app.jobManager().on(SysEventId.PRE_START, new Runnable() {
             @Override
             public void run() {
+                SqlDbProviders.classInit(app);
                 TxContext.reset();
             }
         });
