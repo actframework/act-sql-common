@@ -27,6 +27,7 @@ import act.db.sql.inject.SqlDbProviders;
 import act.db.sql.tx.TxContext;
 import act.event.ActEventListenerBase;
 import act.handler.event.BeforeResultCommit;
+import org.osgl.util.S;
 
 public abstract class SqlDbPlugin extends DbPlugin {
 
@@ -39,13 +40,13 @@ public abstract class SqlDbPlugin extends DbPlugin {
         }
         registered = true;
         super.applyTo(app);
-        app.jobManager().on(SysEventId.STOP, new Runnable() {
+        app.jobManager().on(SysEventId.STOP, jobId("reset registered"), new Runnable() {
             @Override
             public void run() {
                 registered = false;
             }
         });
-        app.jobManager().on(SysEventId.PRE_START, new Runnable() {
+        app.jobManager().on(SysEventId.PRE_START, jobId("class init and reset TxContext"), new Runnable() {
             @Override
             public void run() {
                 SqlDbProviders.classInit(app);
@@ -62,5 +63,9 @@ public abstract class SqlDbPlugin extends DbPlugin {
     }
 
     protected void doExtendedApplyTo(App app) {
+    }
+
+    protected String jobId(String task) {
+        return S.buffer(getClass().getName()).append(" - ").append(task).toString();
     }
 }

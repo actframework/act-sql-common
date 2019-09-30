@@ -29,6 +29,7 @@ import act.db.sql.SqlDbService;
 import act.db.sql.monitor.DataSourceStatus;
 import org.osgl.$;
 import org.osgl.util.E;
+import org.osgl.util.S;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -53,7 +54,8 @@ public class SharedDataSourceProvider extends DataSourceProvider {
         E.invalidConfigurationIf(null == db, "Cannot find db service: %s", dbId);
         E.invalidConfigurationIf(!(db instanceof SqlDbService), "DB service is not a SQL DB service: %s", dbId);
         final SqlDbService sql = $.cast(db);
-        dbm.app().jobManager().on(SysEventId.DB_SVC_LOADED, new Runnable() {
+        String jobId = S.buffer("SharedDataSourceProvider[").append(dbId).append("] - init").toString();
+        dbm.app().jobManager().on(SysEventId.DB_SVC_LOADED, jobId, new Runnable() {
             @Override
             public void run() {
                 ds = sql.dataSource();

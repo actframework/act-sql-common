@@ -1,5 +1,8 @@
 # act-sql-common CHANGE LOG
 
+1.5.1
+* update to act-1.8.28
+* Tune jobId for all jobs
 
 1.5.0
 * update to act-1.8.25

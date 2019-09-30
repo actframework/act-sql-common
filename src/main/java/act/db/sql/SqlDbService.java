@@ -77,9 +77,9 @@ public abstract class SqlDbService extends DbService {
             }
         };
         if (app.isDev()) {
-            app.jobManager().alongWith(SysEventId.DEPENDENCY_INJECTOR_LOADED, "sql_db_service[" + id() + "]:init", runnable);
+            app.jobManager().alongWith(SysEventId.DEPENDENCY_INJECTOR_LOADED, jobId("init"), runnable);
         } else {
-            app.jobManager().post(SysEventId.DEPENDENCY_INJECTOR_LOADED, "sql_db_service[" + id() + "]:init", runnable);
+            app.jobManager().post(SysEventId.DEPENDENCY_INJECTOR_LOADED, jobId("init"), runnable);
         }
         if (Act.isDev() && !supportDdl()) {
             // ensure ebean agent is load for automatically generating tables
@@ -122,7 +122,7 @@ public abstract class SqlDbService extends DbService {
             if (!this.config.isSharedDatasource() && !supportDdl() && this.config.createDdl()) {
                 // the plugin doesn't support ddl generating and executing
                 // we have to run our logic to get it done
-                app.jobManager().on(SysEventId.START, new Runnable() {
+                app.jobManager().on(SysEventId.START, jobId("execute ddl"), new Runnable() {
                     @Override
                     public void run() {
                         if (traceEnabled) {
@@ -136,7 +136,7 @@ public abstract class SqlDbService extends DbService {
             if (traceEnabled) {
                 trace("emitting db-svc-init event: %s", dbId);
             }
-            app.jobManager().post(SysEventId.SINGLETON_PROVISIONED, new Runnable() {
+            app.jobManager().post(SysEventId.SINGLETON_PROVISIONED, jobId("raise DbServiceInitialized event"), new Runnable() {
                 @Override
                 public void run() {
                     app.eventBus().emit(new DbServiceInitialized(SqlDbService.this));
@@ -372,6 +372,10 @@ public abstract class SqlDbService extends DbService {
                 doRollbackTx(delegate, throwable);
             }
         };
+    }
+
+    protected String jobId(String task) {
+        return S.buffer("sql_db_service[").append(id()).append("] - ").append(task).toString();
     }
 
 }
