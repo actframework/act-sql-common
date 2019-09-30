@@ -1,10 +1,10 @@
 # act-sql-common CHANGE LOG
 
-1.5.1
+1.5.1 - 30/Sep/2018
 * update to act-1.8.28
 * Tune jobId for all jobs
 
-1.5.0
+1.5.0 - 2/Jul/2018
 * update to act-1.8.25
 * Allow inject SqlDbService and DataSource #23
 
