@@ -1,5 +1,8 @@
 # act-sql-common CHANGE LOG
 
+1.6.0 - 03/Nov/2019
+* update to act-1.8.29
+
 1.5.1 - 30/Sep/2018
 * update to act-1.8.28
 * Tune jobId for all jobs
