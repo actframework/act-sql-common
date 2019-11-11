@@ -24,29 +24,32 @@ import act.app.App;
 import act.app.event.SysEventId;
 import act.db.DbPlugin;
 import act.db.tx.TxContext;
+import act.db.sql.inject.SqlDbProviders;
 import act.event.ActEventListenerBase;
 import act.handler.event.BeforeResultCommit;
+import org.osgl.util.S;
 
 public abstract class SqlDbPlugin extends DbPlugin {
 
     private static boolean registered;
 
     @Override
-    protected final void applyTo(App app) {
+    protected final void applyTo(final App app) {
         if (registered) {
             return;
         }
         registered = true;
         super.applyTo(app);
-        app.jobManager().on(SysEventId.STOP, new Runnable() {
+        app.jobManager().on(SysEventId.STOP, jobId("reset registered"), new Runnable() {
             @Override
             public void run() {
                 registered = false;
             }
         });
-        app.jobManager().on(SysEventId.PRE_START, new Runnable() {
+        app.jobManager().on(SysEventId.PRE_START, jobId("class init and reset TxContext"), new Runnable() {
             @Override
             public void run() {
+                SqlDbProviders.classInit(app);
                 TxContext.reset();
             }
         });
@@ -60,5 +63,9 @@ public abstract class SqlDbPlugin extends DbPlugin {
     }
 
     protected void doExtendedApplyTo(App app) {
+    }
+
+    protected String jobId(String task) {
+        return S.buffer(getClass().getName()).append(" - ").append(task).toString();
     }
 }

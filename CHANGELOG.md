@@ -1,11 +1,38 @@
 # act-sql-common CHANGE LOG
 
+<<<<<<< HEAD
 1.4.3
 * move act.db.sql.tx package to act-core act.db.tx - see https://github.com/actframework/actframework/issues/822
+=======
+1.6.0 - 03/Nov/2019
+* update to act-1.8.29
+
+1.5.1 - 30/Sep/2018
+* update to act-1.8.28
+* Tune jobId for all jobs
+
+1.5.0 - 2/Jul/2018
+* update to act-1.8.25
+* Allow inject SqlDbService and DataSource #23
+
+1.4.6 - 16/Jun/2019
+* Error starting with db.default.datasource.provider configuration #22
+
+1.4.5 - 20/Apr/2019
+* update to act-1.8.20
+
+1.4.4
+* update to act-1.8.9
+* Update SqlDbService init logic #18
+* update SqlDbService for
+>>>>>>> master
 * Make TX follow JPA `TxType.REQUIRED` semantic #17
 * Apply new scope for implicit transaction #16
 
-1.4.2
+1.4.3 - 30/Oct/2018
+* update to act-1.8.8
+
+1.4.2 - 19/Jun/2018
 * `TxInfo` - exitTxScope logic issue #15
 * update to act-1.8.8-RC10
 * update druid to 1.1.10
