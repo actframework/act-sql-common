@@ -1,5 +1,8 @@
 # act-sql-common CHANGE LOG
 
+1.6.1
+* Default URL conflict with multiple data sources #28
+
 1.6.0 - 03/Nov/2019
 * update to act-1.8.29
 

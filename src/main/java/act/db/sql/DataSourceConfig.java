@@ -23,6 +23,7 @@ package act.db.sql;
 import static act.Act.LOGGER;
 import static act.db.sql.SqlConfKeys.*;
 
+import act.app.DbServiceManager;
 import act.data.annotation.Data;
 import act.util.SimpleBean;
 import org.osgl.$;
@@ -78,13 +79,13 @@ public class DataSourceConfig implements SimpleBean {
     // Constructor for slave datasource
     private DataSourceConfig(DataSourceConfig parent, Map<String, String> conf) {
         $.copy(parent).to(this);
-        init(conf, true);
+        init(parent.id, conf, true);
         readOnly = true;
     }
 
     public DataSourceConfig(String dbId, Map<String, String> conf) {
         id = dbId;
-        init(conf, false);
+        init(id, conf, false);
 
         // process for readonly data source
         Map<String, String> soleSlaveConfig = new HashMap<>();
@@ -128,7 +129,7 @@ public class DataSourceConfig implements SimpleBean {
         return 1 == slaveDataSourceConfigurations.size();
     }
 
-    protected void ensureEssentialDatasourceConfig(Map<String, String> conf) {
+    protected void ensureEssentialDatasourceConfig(String dbId, Map<String, String> conf) {
         if (null == username) {
             LOGGER.warn("No data source user configuration specified. Will use the default 'sa' user");
             username = "sa";
@@ -143,7 +144,8 @@ public class DataSourceConfig implements SimpleBean {
             try {
                 Class.forName("org.h2.Driver");
                 LOGGER.warn("No database URL configuration specified. Will use the default h2 inmemory test database");
-                url = "jdbc:h2:./test";
+                String dbName = "test" + (DbServiceManager.DEFAULT.equals(dbId) ? "" : "-" + dbId);
+                url = "jdbc:h2:./" + dbName;
                 conf.put("url", url);
             } catch (ClassNotFoundException e) {
                 throw new ConfigurationException("No database URL configuration specified to db service: " + id);
@@ -179,7 +181,7 @@ public class DataSourceConfig implements SimpleBean {
         }
     }
 
-    private void init(Map<String, String> conf, boolean readOnly) {
+    private void init(String dbId, Map<String, String> conf, boolean readOnly) {
         username = get(conf, SQL_CONF_USERNAME, username);
         password = get(conf, SQL_CONF_PASSWORD, password);
         driver = get(conf, SQL_CONF_DRIVER);
@@ -206,7 +208,7 @@ public class DataSourceConfig implements SimpleBean {
                 this.isolationLevel = isolationLevels.get(isoLevel);
             }
         }
-        ensureEssentialDatasourceConfig(conf);
+        ensureEssentialDatasourceConfig(dbId, conf);
         customProperties = conf;
     }
 
