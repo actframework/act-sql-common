@@ -45,7 +45,7 @@
     <ebean.version>8.8.1</ebean.version>
     <ebean-agent.version>8.1.1</ebean-agent.version>
     <ebean-agent-loader.version>2.1.2</ebean-agent-loader.version>
-    <h2.version>1.4.196</h2.version>
+    <h2.version>2.1.210</h2.version>
     <HikariCP.version>2.4.13</HikariCP.version>
     <druid.version>1.1.10</druid.version>
 
